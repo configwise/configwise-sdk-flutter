@@ -48,6 +48,7 @@ class _ArPageState extends State<ArPage> {
     this.arController?.onArModelAdded = _onArModelAdded;
     this.arController?.onModelDeleted = _onModelDeleted;
     this.arController?.onModelSelected = _onModelSelected;
+    this.arController?.onModelLoadingProgress = _onModelLoadingProgress;
     this.arController?.onSelectionReset = _onSelectionReset;
     this.arController?.onArPlaneDetected = _onArPlaneDetected;
   }
@@ -150,6 +151,10 @@ class _ArPageState extends State<ArPage> {
 
   void _onModelSelected(String modelId, String componentId) {
     print('[DEBUG] _onModelSelected: modelId: $modelId, componentId: $componentId');
+  }
+
+  void _onModelLoadingProgress(String componentId, int progress) {
+    print('[DEBUG] _onModelLoadingProgress: modelId: componentId: $componentId, progress: $progress');
   }
 
   void _onSelectionReset() {

@@ -75,9 +75,7 @@ class CwflutterArView: NSObject, FlutterPlatformView {
                     return
                 }
 
-                // TODO [smuravev] Implement CwflutterArView.addModel(), here
-                // result(nil)
-                result(FlutterMethodNotImplemented)
+                result(nil)
             }
             break
         case "dispose":
@@ -206,7 +204,46 @@ extension CwflutterArView {
         simdWorldPosition: simd_float3?,
         block: @escaping (Error?) -> Void
     ) {
-        // TODO [smuravev] Implement CwflutterArView.addModel(), here
-        block(nil)
+        ComponentService.sharedInstance.obtainComponentById(id: componentId) { component, error in
+            if let error = error {
+                block(error)
+                return
+            }
+            
+            guard let component = component else {
+                block("Unable to find component with such id.")
+                return
+            }
+            
+            ModelLoaderService.sharedInstance.loadModelBy(component: component, block: { model, error in
+                self.channel.invokeMethod(
+                    "onModelLoadingProgress",
+                    arguments: [
+                        "componentId": componentId,
+                        "progress": 100
+                    ]
+                )
+
+                if let error = error {
+                    block(error)
+                    return
+                }
+                guard let model = model else {
+                    block("Loaded model is nil")
+                    return
+                }
+                
+                self.arAdapter.addModel(modelNode: model, simdWorldPosition: simdWorldPosition, selectModel: true)
+                block(nil)
+            }, progressBlock: { status, completed in
+                self.channel.invokeMethod(
+                    "onModelLoadingProgress",
+                    arguments: [
+                        "componentId": componentId,
+                        "progress": Int(completed * 100)
+                    ]
+                )
+            })
+        }
     }
 }

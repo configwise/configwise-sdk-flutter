@@ -91,6 +91,8 @@ class ArController {
 
   void Function(String modelId, String componentId) onModelSelected;
 
+  void Function(String componentId, int progress) onModelLoadingProgress;
+
   void Function() onSelectionReset;
 
   void Function(Vector3 worldPosition) onArPlaneDetected;
@@ -170,6 +172,12 @@ class ArController {
         case 'onModelSelected':
           if (onModelSelected != null) {
             onModelSelected(call.arguments['modelId'], call.arguments['componentId']);
+          }
+          break;
+
+        case 'onModelLoadingProgress':
+          if (onModelLoadingProgress != null) {
+            onModelLoadingProgress(call.arguments['componentId'], call.arguments['progress']);
           }
           break;
 
