@@ -21,6 +21,8 @@ class _ArPageState extends State<ArPage> {
 
   bool _isShowHelpMessagesAllowed = true;
 
+  int _modelLoadingProgress = 0;
+
   @override
   void dispose() {
     arController?.dispose();
@@ -30,7 +32,7 @@ class _ArPageState extends State<ArPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
       appBar: AppBar(
-        title: const Text('AR in Flutter'),
+        title: Text(_modelLoadingProgress <= 0 || _modelLoadingProgress >= 100 ? 'AR in Flutter' : 'Loading: $_modelLoadingProgress%'),
       ),
       body: Container(
         child: ArSceneView(onViewCreated: onViewCreated),
@@ -154,7 +156,9 @@ class _ArPageState extends State<ArPage> {
   }
 
   void _onModelLoadingProgress(String componentId, int progress) {
-    print('[DEBUG] _onModelLoadingProgress: modelId: componentId: $componentId, progress: $progress');
+    setState(() {
+      _modelLoadingProgress = progress;
+    });
   }
 
   void _onSelectionReset() {
