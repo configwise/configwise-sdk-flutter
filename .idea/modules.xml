@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/cwflutter.iml" filepath="$PROJECT_DIR$/cwflutter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/configwise-sdk-flutter.iml" filepath="$PROJECT_DIR$/.idea/configwise-sdk-flutter.iml" />
     </modules>
   </component>
 </project>
