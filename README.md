@@ -61,5 +61,9 @@ ARKit uses the device camera, so do not forget to provide the `NSCameraUsageDesc
     <string>Describe why your app needs AR here.</string>
 ```
 
+### Let's add Metal (shader rendering) code to ios Runner in your Flutter project.
 
-
+Finally, add [NodeRender.metal](example/ios/Runner/NodeRender.metal) file (as `metal` source code) to ios Runner in your Flutter project.
+`NodeRender.metal` is [Apple Metal API](https://developer.apple.com/metal/) based code to show 'glow' visualisation of highlighted 3D objects in the AR scene.
+Unfortunately, there are some known issues (restrictions) to pack `.metal` code inside of ConfigWiseSDK framework - that's why `.metal` code must 
+be part of your project to pass compilation steps.  
