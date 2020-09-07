@@ -43,5 +43,12 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- Indicates that app requires ARCore ("AR Required"). Causes the Google
+             Play Store to download and install Google Play Services for AR along
+             with the app. For an "AR Optional" app, specify "optional" instead of
+             "required".
+        -->
+        <meta-data android:name="com.google.ar.core" android:value="required" />
     </application>
 </manifest>

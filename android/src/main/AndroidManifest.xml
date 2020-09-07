@@ -1,3 +1,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   package="io.configwise.sdk.cwflutter">
+
+    <!-- Always needed for AR. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Indicates that app requires ARCore ("AR Required"). Ensures the app is
+         visible only in the Google Play Store on devices that support ARCore.
+         For "AR Optional" apps remove this line. -->
+    <uses-feature android:name="android.hardware.camera.ar" />
+
+    <!-- Used to monitor network status (to detect if network available or offline mode) -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Used to access ConfigWise backend via network -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
 </manifest>

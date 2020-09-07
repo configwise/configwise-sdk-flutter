@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:4.0.1'
     }
 }
 
@@ -16,18 +16,42 @@ rootProject.allprojects {
     repositories {
         google()
         jcenter()
+
+        // ConfigWise SDK maven repository
+        maven { url 'https://dl.bintray.com/qdoest/configwise' }
+        // ConfigWise SDK maven repo to download 'real-time updates' related libs
+        maven { url "https://jitpack.io" }
+    }
+}
+
+allprojects {
+    tasks.withType(JavaCompile) {
+        options.deprecation = true
     }
 }
 
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 24
     }
     lintOptions {
         disable 'InvalidPackage'
     }
+
+    // Sceneform libraries use language constructs from Java 8.
+    // Add these compile options if targeting minSdkVersion < 26.
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+
+    // ConfigWiseSDK
+    implementation "io.configwise:sdk:1.2.8"
 }

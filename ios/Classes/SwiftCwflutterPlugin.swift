@@ -144,7 +144,7 @@ class ArFactory: NSObject, FlutterPlatformViewFactory {
 
 let BAD_REQUEST = "400"
 let UNAUTHORIZED = "401"
-let FIRBIDDEN = "403"
+let FORBIDDEN = "403"
 let NOT_FOUND = "404"
 let INTERNAL_ERROR = "500"
 let NOT_IMPLEMENTED = "501"
