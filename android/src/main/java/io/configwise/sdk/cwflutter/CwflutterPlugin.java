@@ -40,7 +40,11 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 /** CwflutterPlugin */
 public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler {
 
-  public static final String TAG = CwflutterPlugin.class.getSimpleName();
+  private static final String TAG = CwflutterPlugin.class.getSimpleName();
+
+  private static final String CHANNEL_NAME = "cwflutter";
+
+  static final String VIEW_FACTORY_ID = "cwflutter_ar";
 
   public final String BAD_REQUEST = "400";
   public final String UNAUTHORIZED = "401";
@@ -49,10 +53,9 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
   public final String INTERNAL_ERROR = "500";
   public final String NOT_IMPLEMENTED = "501";
 
-  /// The MethodChannel that will the communication between Flutter and native Android
-  ///
-  /// This local reference serves to register the plugin with the Flutter Engine and unregister it
-  /// when the Flutter Engine is detached from the Activity
+  @Nullable
+  private  FlutterPluginBinding flutterPluginBinding;
+
   @Nullable
   private MethodChannel channel;
 
@@ -60,7 +63,7 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
   private Activity activity;
 
   private void startListening(BinaryMessenger messenger) {
-    channel = new MethodChannel(messenger, "cwflutter");
+    channel = new MethodChannel(messenger, CHANNEL_NAME);
     channel.setMethodCallHandler(this);
   }
 
@@ -76,10 +79,18 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
   public static void registerWith(Registrar registrar) {
     CwflutterPlugin plugin = new CwflutterPlugin();
     plugin.startListening(registrar.messenger());
+
+    registrar
+            .platformViewRegistry()
+            .registerViewFactory(
+                    VIEW_FACTORY_ID,
+                    new ArFactory(registrar.activity(), registrar.messenger())
+            );
   }
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
+    flutterPluginBinding = binding;
     startListening(binding.getBinaryMessenger());
   }
 
@@ -89,11 +100,23 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
       channel.setMethodCallHandler(null);
     }
     channel = null;
+    flutterPluginBinding = null;
   }
+
+  // MARK: - ActivityAware
 
   @Override
   public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
     this.activity = binding.getActivity();
+
+    if (flutterPluginBinding != null) {
+      flutterPluginBinding.getPlatformViewRegistry()
+              .registerViewFactory(
+                      VIEW_FACTORY_ID,
+                      new ArFactory(this.activity, flutterPluginBinding.getBinaryMessenger())
+              );
+    }
+
     EventBus.getDefault().register(this);
   }
 
@@ -105,18 +128,15 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
 
   @Override
   public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
-    this.activity = binding.getActivity();
-    EventBus.getDefault().register(this);
+    onAttachedToActivity(binding);
   }
 
   @Override
   public void onDetachedFromActivityForConfigChanges() {
-    EventBus.getDefault().unregister(this);
-    this.activity = null;
+    onDetachedFromActivity();
   }
 
-
-  // METHOD CALL HANDLER
+  // MARK: - MethodCallHandler
 
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {

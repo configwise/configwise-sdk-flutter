@@ -32,6 +32,14 @@ class _ArSceneViewState extends State<ArSceneView> {
       );
     }
 
+    else if (defaultTargetPlatform == TargetPlatform.android) {
+      return AndroidView(
+        viewType: 'cwflutter_ar',
+        onPlatformViewCreated: onPlatformViewCreated,
+        creationParamsCodec: const StandardMessageCodec(),
+      );
+    }
+
     return Text('$defaultTargetPlatform is not supported by this plugin');
   }
 
