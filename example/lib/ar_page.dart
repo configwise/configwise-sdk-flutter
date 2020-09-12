@@ -23,6 +23,8 @@ class _ArPageState extends State<ArPage> {
 
   int _modelLoadingProgress = 0;
 
+  bool _firstArPlaneDetected = false;
+
   @override
   void dispose() {
     arController?.dispose();
@@ -94,9 +96,9 @@ class _ArPageState extends State<ArPage> {
 
       Fluttertoast.showToast(
           msg: message,
-          toastLength: Toast.LENGTH_SHORT,
+          toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
+          timeInSecForIosWeb: 2,
           backgroundColor: helpMessageBackgroundColor,
           textColor: helpMessageTextColor,
           fontSize: 16.0
@@ -166,6 +168,12 @@ class _ArPageState extends State<ArPage> {
   }
 
   void _onArPlaneDetected(Vector3 worldPosition) {
+    if (_firstArPlaneDetected) {
+      return;
+    }
+
+    _firstArPlaneDetected = true;
+
     arController?.addModel(widget.component, worldPosition)
       .then((_) {
       })
