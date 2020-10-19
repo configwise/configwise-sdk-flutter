@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cwflutter/domain/app_list_item_entity.dart';
 import 'package:cwflutter/widget/ar_configuration.dart';
 import 'package:flutter/services.dart';
 
@@ -71,6 +72,35 @@ class Cwflutter {
       }
 
       return ComponentEntity.fromJson(value);
+    });
+  }
+
+  static Future<List<AppListItemEntity>> obtainAllAppListItems(String parentId) async {
+    final invocationResult = await _channel.invokeMethod('obtainAllAppListItems', {
+      'parent_id': parentId
+    });
+    if (invocationResult == null) {
+      return [];
+    }
+
+    List<AppListItemEntity> entities = List<AppListItemEntity>();
+    for (final it in invocationResult.toList()) {
+      final json = Map<String, dynamic>.from(it);
+      entities.add(AppListItemEntity.fromJson(json));
+    }
+
+    return entities;
+  }
+
+  static Future<AppListItemEntity> obtainAppListItemById(String id) async {
+    return _channel.invokeMethod<Map<String, dynamic>>('obtainAppListItemById', {
+      'id': id,
+    }).then((value) {
+      if (value == null) {
+        return null;
+      }
+
+      return AppListItemEntity.fromJson(value);
     });
   }
 
