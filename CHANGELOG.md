@@ -11,3 +11,9 @@
 
 * ConfigWise Android SDK is integrated to ConfigWise SDK Flutter plugin.
 So, both mobile platforms (iOS and Android) are supported by our plugin at this moment.
+
+## 1.0.5
+
+* Updated iOS bridge to use latest ConfigWiseSDK v1.3.1. Xcode 12 / Swift 5.3 compatibility.
+* Implemented functionality to retrieve AppContent data from ConfigWise backend.
+
