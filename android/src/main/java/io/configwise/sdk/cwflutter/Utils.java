@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.configwise.sdk.domain.AppListItemEntity;
 import io.configwise.sdk.domain.ComponentEntity;
 
 class Utils {
@@ -47,6 +48,31 @@ class Utils {
 
         result.put("totalSize", component.getFilesSize());
         result.put("isVisible", component.isVisible());
+
+        return result;
+    }
+
+    public static Map<String, ?> serializeAppListItemEntity(@NonNull AppListItemEntity appListItem) {
+        final Map<String, Object> result = new HashMap<>();
+
+
+        result.put("id", appListItem.getObjectId());
+
+        final AppListItemEntity parent = appListItem.getParent();
+        result.put("parent_id", parent != null ? parent.getObjectId() : "");
+
+        final ComponentEntity component = appListItem.getComponent();
+        result.put("component_id", component != null ? component.getObjectId() : "");
+
+        result.put("type", appListItem.getType().value());
+        result.put("label", appListItem.getLabel());
+        result.put("description", appListItem.getDescription());
+
+        final String imageUrl = appListItem.getImageUrl();
+        result.put("imageUrl", imageUrl != null ? imageUrl : "");
+
+        result.put("index", appListItem.getIndex());
+        result.put("textColor", appListItem.getTextColor());
 
         return result;
     }

@@ -18,11 +18,13 @@ import java.util.Map;
 import bolts.Task;
 import io.configwise.sdk.ConfigWiseSDK;
 
+import io.configwise.sdk.domain.AppListItemEntity;
 import io.configwise.sdk.domain.CompanyEntity;
 import io.configwise.sdk.domain.ComponentEntity;
 import io.configwise.sdk.domain.UserEntity;
 import io.configwise.sdk.eventbus.SignOutEvent;
 import io.configwise.sdk.eventbus.UnsupportedAppVersionEvent;
+import io.configwise.sdk.services.AppListItemService;
 import io.configwise.sdk.services.AuthService;
 import io.configwise.sdk.services.CompanyService;
 import io.configwise.sdk.services.ComponentService;
@@ -268,6 +270,34 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
                 result.success(task.getResult());
                 return null;
             }, Task.UI_THREAD_EXECUTOR);
+        } else if (call.method.equals("obtainAllAppListItems")) {
+            String parentId = (String) args.get("parent_id");
+            obtainAllAppListItems(parentId).continueWith(task -> {
+                if (task.isCancelled()) {
+                    String message = "Unable to obtain appListItems due invocation task is canceled.";
+                    Log.e(TAG, message);
+                    result.error(
+                            INTERNAL_ERROR,
+                            message,
+                            null
+                    );
+                    return null;
+                }
+
+                if (task.isFaulted()) {
+                    Exception e = task.getError();
+                    Log.e(TAG, "Unable to obtain appListItems due error", e);
+                    result.error(
+                            INTERNAL_ERROR,
+                            e.getMessage(),
+                            null
+                    );
+                    return null;
+                }
+
+                result.success(task.getResult());
+                return null;
+            }, Task.UI_THREAD_EXECUTOR);
         } else {
             result.notImplemented();
         }
@@ -356,8 +386,8 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
                 .onSuccessTask(task -> {
                     List<Map<String, ?>> result = new ArrayList<>();
 
-                    List<ComponentEntity> components = task.getResult();
-                    for (ComponentEntity it : components) {
+                    List<ComponentEntity> entities = task.getResult();
+                    for (ComponentEntity it : entities) {
                         if (it.isVisible()) {
                             result.add(Utils.serializeComponentEntity(it));
                         }
@@ -377,5 +407,52 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
                             : null
                     );
                 });
+    }
+
+    private Task<List<Map<String, ?>>> obtainAllAppListItems(@Nullable String parentId) {
+        AppListItemEntity parent = null;
+        if (parentId != null && !parentId.isEmpty()) {
+            parent = new AppListItemEntity();
+            parent.setObjectId(parentId);
+        }
+
+        return AppListItemService.getInstance().obtainAllAppListItemsByCurrentCatalogAndParent(parent)
+                .onSuccessTask(task -> {
+                    List<Map<String, ?>> result = new ArrayList<>();
+
+                    List<AppListItemEntity> entities = task.getResult();
+                    for (AppListItemEntity it : entities) {
+                        if (isAppListItemVisible(it)) {
+                            result.add(Utils.serializeAppListItemEntity(it));
+                        }
+                    }
+
+                    return Task.forResult(result);
+                });
+    }
+
+    private boolean isAppListItemVisible(@NonNull AppListItemEntity entity) {
+        if (!entity.isEnabled()) {
+            return false;
+        }
+
+        if (entity.isOverlayImage()) {
+            return entity.isImageExist()
+                    || !entity.getLabel().isEmpty()
+                    || !entity.getDescription().isEmpty();
+        }
+        else if (entity.isNavigationItem()) {
+            return !entity.getLabel().isEmpty() || !entity.getDescription().isEmpty();
+        }
+        else if (entity.isMainProduct()) {
+            final ComponentEntity component = entity.getComponent();
+            if (component == null) {
+                return false;
+            }
+
+            return component.isVisible();
+        }
+
+        return false;
     }
 }

@@ -102,8 +102,6 @@ class _MyAppState extends State<MyApp> {
     Cwflutter.obtainAllAppListItems(category?.id)
         .then((appListItems) {
           setState(() {
-            _goBackStack.addLast(_currentCategory);
-            _currentCategory = category;
             _currentAppContent = appListItems;
           });
         })
@@ -199,7 +197,12 @@ class _MyAppState extends State<MyApp> {
                 onPressed: () {
                   if (_currentCategory == null) { return; }
                   if (_goBackStack.isNotEmpty) {
-                    _retrieveAppContent(_goBackStack.removeLast());
+                    final AppListItemEntity goBackCategory = _goBackStack.removeLast();
+                    setState(() {
+                      _currentCategory = goBackCategory;
+                      _currentAppContent = List();
+                    });
+                    _retrieveAppContent(goBackCategory);
                   }
                 },
               ),
@@ -247,6 +250,11 @@ class _MyAppState extends State<MyApp> {
                 return AppListItemCellCategory(
                   appListItem: appListItem,
                   onTap: (appListItem) {
+                    _goBackStack.addLast(_currentCategory);
+                    setState(() {
+                      _currentCategory = appListItem;
+                      _currentAppContent = List();
+                    });
                     _retrieveAppContent(appListItem);
                   }
                 );
