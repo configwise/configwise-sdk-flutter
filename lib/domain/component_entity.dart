@@ -33,7 +33,7 @@ class ComponentEntity {
       this.isVariance
   );
 
-  static ComponentEntity fromJson(Map<String, dynamic> json) {
+  static ComponentEntity fromJson(Map<dynamic, dynamic> json) {
     return ComponentEntity(
       json["id"] as String,
       json["parent_id"] as String,

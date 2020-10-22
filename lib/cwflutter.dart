@@ -56,7 +56,7 @@ class Cwflutter {
 
     List<ComponentEntity> entities = List<ComponentEntity>();
     for (final it in invocationResult.toList()) {
-      final json = Map<String, dynamic>.from(it);
+      final json = Map<dynamic, dynamic>.from(it);
       entities.add(ComponentEntity.fromJson(json));
     }
 
@@ -64,7 +64,7 @@ class Cwflutter {
   }
 
   static Future<ComponentEntity> obtainComponentById(String id) async {
-    return _channel.invokeMethod<Map<String, dynamic>>('obtainComponentById', {
+    return _channel.invokeMethod<Map<dynamic, dynamic>>('obtainComponentById', {
       'id': id,
     }).then((value) {
       if (value == null) {
@@ -85,7 +85,7 @@ class Cwflutter {
 
     List<AppListItemEntity> entities = List<AppListItemEntity>();
     for (final it in invocationResult.toList()) {
-      final json = Map<String, dynamic>.from(it);
+      final json = Map<dynamic, dynamic>.from(it);
       entities.add(AppListItemEntity.fromJson(json));
     }
 
@@ -93,7 +93,7 @@ class Cwflutter {
   }
 
   static Future<AppListItemEntity> obtainAppListItemById(String id) async {
-    return _channel.invokeMethod<Map<String, dynamic>>('obtainAppListItemById', {
+    return _channel.invokeMethod<Map<dynamic, dynamic>>('obtainAppListItemById', {
       'id': id,
     }).then((value) {
       if (value == null) {

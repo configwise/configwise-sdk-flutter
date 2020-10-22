@@ -30,7 +30,7 @@ class AppListItemEntity {
       this.textColor
       );
 
-  static AppListItemEntity fromJson(Map<String, dynamic> json) {
+  static AppListItemEntity fromJson(Map<dynamic, dynamic> json) {
     return AppListItemEntity(
       json["id"] as String,
       json["parent_id"] as String,

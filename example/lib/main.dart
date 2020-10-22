@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -12,12 +14,12 @@ import 'ar_page.dart';
 
 void main() {
   // See: https://flutter.dev/docs/testing/errors
-//  FlutterError.onError = (FlutterErrorDetails details) {
-//    FlutterError.dumpErrorToConsole(details);
-//    if (kReleaseMode) {
-//      // exit(1);
-//    }
-//  };
+  // FlutterError.onError = (FlutterErrorDetails details) {
+  //   FlutterError.dumpErrorToConsole(details);
+  //   if (kReleaseMode) {
+  //     exit(1);
+  //   }
+  // };
 
   runApp(MaterialApp(home: MyApp()));
 }
@@ -29,15 +31,30 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
+  bool _isConfigWiseSdkInitialized = false;
+  Object _error;
+  AppListItemEntity _currentCategory;
+  List<AppListItemEntity> _currentAppContent = List();
+  final Queue<AppListItemEntity> _goBackStack = Queue();
 
   @override
   void initState() {
     super.initState();
-    initMyState();
+    _initMyState();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initMyState() async {
+  Future<void> _initMyState() async {
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    _retrievePlatformVersion();
+    _initConfigWiseSdk();
+  }
+
+  Future<void> _retrievePlatformVersion() async {
     String platformVersion;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
@@ -46,14 +63,55 @@ class _MyAppState extends State<MyApp> {
       platformVersion = 'Failed to get platform version.';
     }
 
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
     setState(() {
       _platformVersion = platformVersion;
     });
+  }
+
+  Future<void> _initConfigWiseSdk() async {
+    Cwflutter.initialize("YOUR_COMPANY_AUTH_TOKEN")
+        .then((isInitialized) {
+          if (!isInitialized) {
+            return Future.value(false);
+          }
+
+          // Let's skip authorization step if we already authorized.
+          if (Cwflutter.authState == AuthState.authorised) {
+            return Future.value(true);
+          }
+
+          return Cwflutter.signIn();
+        })
+        .then((isInitialized) {
+          setState(() {
+            _isConfigWiseSdkInitialized = isInitialized;
+            _error = null;
+          });
+
+          _retrieveAppContent(_currentCategory);
+        })
+        .catchError((error) {
+          setState(() {
+            _isConfigWiseSdkInitialized = false;
+            _error = error;
+          });
+        });
+  }
+
+  Future<void> _retrieveAppContent(AppListItemEntity category) async {
+    Cwflutter.obtainAllAppListItems(category?.id)
+        .then((appListItems) {
+          setState(() {
+            _goBackStack.addLast(_currentCategory);
+            _currentCategory = category;
+            _currentAppContent = appListItems;
+          });
+        })
+        .catchError((error) {
+          setState(() {
+            _error = error;
+          });
+        });
   }
 
   @override
@@ -69,7 +127,7 @@ class _MyAppState extends State<MyApp> {
             children: [
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: ArConfiguration.values.map((configuration) => _showSupport(configuration)).toList(),
+                children: ArConfiguration.values.map((configuration) => _showSupportedArConfiguration(context, configuration)).toList(),
               ),
 
               Text(""),
@@ -84,7 +142,12 @@ class _MyAppState extends State<MyApp> {
 
               Text(""),
 
-              _showConfigWiseSDKInfo(),
+              _showConfigWiseSdkInfo(context),
+
+              Text(""),
+
+              // _showComponentsList(context),
+              _showAppContent(context),
 
               Spacer(),
             ]
@@ -93,7 +156,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  Widget _showSupport(ArConfiguration configuration) {
+  Widget _showSupportedArConfiguration(BuildContext context, ArConfiguration configuration) {
     return Row(children: [
       Text('$configuration:'),
       Spacer(),
@@ -108,105 +171,102 @@ class _MyAppState extends State<MyApp> {
     ]);
   }
 
-  Widget _showConfigWiseSDKInfo() {
-    return FutureBuilder<bool>(
-        future: Cwflutter.initialize("YOUR_COMPANY_AUTH_TOKEN"),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Text(
-              'ERROR: ${snapshot.error}',
-              style: TextStyle(color: Colors.red),
-            );
-          }
+  Widget _showConfigWiseSdkInfo(BuildContext context) {
+    if (_error != null) {
+      return Text(
+        'ERROR: ${_error}',
+        style: TextStyle(color: Colors.red),
+      );
+    }
 
-          if (snapshot.hasData) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("ConfigWise SDK initialized."),
+    if (!_isConfigWiseSdkInitialized) {
+      return CircularProgressIndicator();
+    }
 
-                Text(""),
-
-                _showAuthorized()
-              ],
-            );
-          }
-
-          return CircularProgressIndicator();
-        }
-    );
+    return Text("ConfigWise SDK initialized.");
   }
 
-  Widget _showAuthorized() {
-    return Center(
-        child: FutureBuilder<bool>(
-            future: Cwflutter.signIn(),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Text(
-                  'ERROR: ${snapshot.error}',
-                  style: TextStyle(color: Colors.red),
+  Widget _showAppContent(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Row(
+            children: [
+              IconButton(
+                icon: Icon(Icons.chevron_left),
+                iconSize: 36,
+                color: _currentCategory == null ? Colors.grey : Colors.black,
+                onPressed: () {
+                  if (_currentCategory == null) { return; }
+                  if (_goBackStack.isNotEmpty) {
+                    _retrieveAppContent(_goBackStack.removeLast());
+                  }
+                },
+              ),
+              Spacer(),
+              Text(
+                  _currentCategory?.label ?? "App Content",
+                style: Theme.of(context).textTheme.headline5,
+              ),
+              Spacer(),
+            ]
+        ),
+
+        ConstrainedBox(
+          constraints: new BoxConstraints(
+            minHeight: 160.0,
+            maxHeight: 320.0,
+          ),
+          child: ListView.builder(
+            itemCount: _currentAppContent.length,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              final appListItem = _currentAppContent[index];
+
+              if (appListItem.type == 'MAIN_PRODUCT') {
+                return AppListItemCellProduct(
+                  appListItem: appListItem,
+                  onTap: (appListItem) {
+                    Cwflutter.obtainComponentById(appListItem.component_id)
+                        .then((component) {
+                          Navigator.of(context).push<void>(
+                              MaterialPageRoute(builder: (c) => ArPage(component: component))
+                          );
+                        })
+                        .catchError((error) {
+                          Fluttertoast.showToast(
+                              msg: 'ERROR: $error',
+                              toastLength: Toast.LENGTH_LONG,
+                              gravity: ToastGravity.CENTER,
+                              timeInSecForIosWeb: 2
+                          );
+                        });
+                  },
+                );
+              } else if (appListItem.type == 'NAVIGATION_ITEM') {
+                return AppListItemCellCategory(
+                  appListItem: appListItem,
+                  onTap: (appListItem) {
+                    _retrieveAppContent(appListItem);
+                  }
+                );
+              } else if (appListItem.type == 'OVERLAY_IMAGE') {
+                return Image.network(
+                  appListItem.imageUrl,
+                  height: 100,
+                  fit: BoxFit.fitWidth,
                 );
               }
 
-              if (snapshot.hasData) {
-                // return showComponentsList();
-                return _showAppListItemsList(null);
-              }
-
-              return CircularProgressIndicator();
-            })
+              return ListTile(title: null, subtitle: null);
+            },
+          ),
+        )
+      ],
     );
   }
 
-  Widget _showAppListItemsList(AppListItemEntity parent) {
-    return FutureBuilder<List<AppListItemEntity>>(
-      future: Cwflutter.obtainAllAppListItems(parent?.id),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Text(
-            'ERROR: ${snapshot.error}',
-            style: TextStyle(color: Colors.red),
-          );
-        }
-
-        if (snapshot.hasData) {
-          final appListItems = snapshot.data;
-
-          return ConstrainedBox(
-            constraints: new BoxConstraints(
-              minHeight: 160.0,
-              maxHeight: 320.0,
-            ),
-            child: ListView.builder (
-              itemCount: appListItems.length,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                final appListItem = appListItems[index];
-
-                if (appListItem.type == 'MAIN_PRODUCT') {
-                  return AppListItemCellProduct(appListItem: appListItem);
-                } else if (appListItem.type == 'NAVIGATION_ITEM') {
-                  return AppListItemCellCategory(appListItem: appListItem);
-                } else if (appListItem.type == 'OVERLAY_IMAGE') {
-                  return Image.network(appListItem.imageUrl,
-                    height: 100,
-                    fit: BoxFit.fitWidth,
-                  );
-                }
-
-                return ListTile( title: null, subtitle: null);
-              },
-            ),
-          );
-        }
-
-        return CircularProgressIndicator();
-      },
-    );
-  }
-
-  Widget _showComponentsList() {
+  Widget _showComponentsList(BuildContext context) {
     return FutureBuilder<List<ComponentEntity>>(
       future: Cwflutter.obtainAllComponents(),
       builder: (context, snapshot) {
@@ -267,29 +327,19 @@ class ComponentCell extends StatelessWidget {
   }
 }
 
+typedef OnTapCallback = void Function(AppListItemEntity appListItem);
+
 class AppListItemCellProduct extends StatelessWidget {
-  const AppListItemCellProduct({Key key, this.appListItem}) : super(key: key);
+  const AppListItemCellProduct({Key key, this.appListItem, this.onTap}) : super(key: key);
   final AppListItemEntity appListItem;
+  final OnTapCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: InkWell(
         onTap: () {
-          Cwflutter.obtainComponentById(appListItem.component_id)
-              .then((component) {
-                Navigator.of(context).push<void>(
-                    MaterialPageRoute(builder: (c) => ArPage(component: component))
-                );
-              })
-              .catchError((error) {
-                Fluttertoast.showToast(
-                    msg: error,
-                    toastLength: Toast.LENGTH_LONG,
-                    gravity: ToastGravity.CENTER,
-                    timeInSecForIosWeb: 2
-                );
-              });
+          onTap(appListItem);
         },
         child: ListTile(
           leading: Image.network(appListItem.imageUrl,
@@ -312,16 +362,16 @@ class AppListItemCellProduct extends StatelessWidget {
 }
 
 class AppListItemCellCategory extends StatelessWidget {
-  const AppListItemCellCategory({Key key, this.appListItem}) : super(key: key);
+  const AppListItemCellCategory({Key key, this.appListItem, this.onTap}) : super(key: key);
   final AppListItemEntity appListItem;
+  final OnTapCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: InkWell(
         onTap: () {
-          // TODO [smuravev] Implement onTap functionality by Category selection
-          //                 (browse selected category).
+          onTap(appListItem);
         },
         child: ListTile(
           leading: Image.network(appListItem.imageUrl,

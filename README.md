@@ -36,7 +36,7 @@ Import `package:cwflutter/cwflutter.dart`, and initiate `Cwflutter Plugin` with 
     }
 ```
 
-**NOTICE:** See examples (how to initialize and pass authorization) in our example project:
+**NOTICE:** See examples (how to initialize and pass authorization) in our example project - see `_initConfigWiseSdk()` function in the 
 [example/lib/main.dart](example/lib/main.dart)  
 
 ## Usage
