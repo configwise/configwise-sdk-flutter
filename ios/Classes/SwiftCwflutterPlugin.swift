@@ -136,31 +136,6 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
                 result(serializedAppListItems)
             }
         }
-            
-        else if call.method == "obtainAppListItemById" {
-            guard let arguments = call.arguments as? Dictionary<String, Any?>,
-                let appListItemId = arguments["id"] as? String
-            else {
-                result(FlutterError(
-                    code: BAD_REQUEST,
-                    message: "'id' parameter must not be blank.",
-                    details: nil
-                ))
-                return
-            }
-
-            self.obtainAppListItemById(appListItemId) { serializedComponent, error in
-                if let error = error {
-                    result(FlutterError(
-                        code: INTERNAL_ERROR,
-                        message: error.localizedDescription,
-                        details: nil
-                    ))
-                    return
-                }
-                result(serializedComponent)
-            }
-        }
 
         else {
             result(FlutterMethodNotImplemented)
@@ -293,60 +268,26 @@ extension SwiftCwflutterPlugin {
         parentId: String?,
         block: @escaping ([Dictionary<String, Any?>], Error?) -> Void
     ) {
-        func _obtainAppListItems(parent: AppListItemEntity?) {
-            AppListItemService.sharedInstance.obtainAppListItemsByCurrentCatalog(parent: parent) { [weak self] entities, error in
-                guard let self = self else {
-                    block([], nil)
-                    return
-                }
-                if let error = error {
-                    block([], error)
-                    return
-                }
-                
-                let serializedEntities = entities
-                    .filter { self.isAppListItemVisible($0) }
-                    .map { serializeAppListItemEntity($0) }
-                block(serializedEntities, nil)
+        var parent: AppListItemEntity?
+        if let parentId = parentId {
+            parent = AppListItemEntity()
+            parent?.objectId = parentId
+        }
+        
+        AppListItemService.sharedInstance.obtainAppListItemsByCurrentCatalog(parent: parent) { [weak self] entities, error in
+            guard let self = self else {
+                block([], nil)
+                return
             }
-        }
-        
-        guard let parentId = parentId else {
-            _obtainAppListItems(parent: nil)
-            return
-        }
-        
-        AppListItemService.sharedInstance.obtainAppListItemById(id: parentId) { parent, error in
             if let error = error {
                 block([], error)
                 return
             }
-            _obtainAppListItems(parent: parent)
-        }
-    }
-    
-    private func obtainAppListItemById(
-        _ appListItemId: String,
-        block: @escaping (Dictionary<String, Any?>?, Error?) -> Void
-    ) {
-        AppListItemService.sharedInstance.obtainAppListItemById(id: appListItemId) { [weak self] entity, error in
-            guard let self = self else {
-                block(nil, nil)
-                return
-            }
             
-            if let error = error {
-                block(nil, error)
-                return
-            }
-            
-            guard let entity = entity, self.isAppListItemVisible(entity) else {
-                block(nil, nil)
-                return
-            }
-            
-            let serializedEntity = serializeAppListItemEntity(entity)
-            block(serializedEntity, nil)
+            let serializedEntities = entities
+                .filter { self.isAppListItemVisible($0) }
+                .map { serializeAppListItemEntity($0) }
+            block(serializedEntities, nil)
         }
     }
     

@@ -92,18 +92,6 @@ class Cwflutter {
     return entities;
   }
 
-  static Future<AppListItemEntity> obtainAppListItemById(String id) async {
-    return _channel.invokeMethod<Map<dynamic, dynamic>>('obtainAppListItemById', {
-      'id': id,
-    }).then((value) {
-      if (value == null) {
-        return null;
-      }
-
-      return AppListItemEntity.fromJson(value);
-    });
-  }
-
   Future<void> _platformCallHandler(MethodCall call) {
     try {
       switch (call.method) {
