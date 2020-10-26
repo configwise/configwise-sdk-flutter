@@ -119,6 +119,22 @@ class ArController {
     return _channel.invokeMethod<void>('addModel', params);
   }
 
+  Future<void> removeModel(String modelId) {
+    final Map<dynamic, dynamic> params = <String, dynamic>{
+      'modelId': modelId
+    };
+
+    return _channel.invokeMethod<void>('removeModel', params);
+  }
+
+  Future<void> removeSelectedModel() {
+    return _channel.invokeMethod<void>('removeSelectedModel');
+  }
+
+  Future<void> resetSelection() {
+    return _channel.invokeMethod<void>('resetSelection');
+  }
+
   Future<void> _platformCallHandler(MethodCall call) {
     try {
       switch (call.method) {

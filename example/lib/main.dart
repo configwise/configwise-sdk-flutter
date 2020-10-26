@@ -233,7 +233,7 @@ class _MyAppState extends State<MyApp> {
                     Cwflutter.obtainComponentById(appListItem.component_id)
                         .then((component) {
                           Navigator.of(context).push<void>(
-                              MaterialPageRoute(builder: (c) => ArPage(component: component))
+                              MaterialPageRoute(builder: (c) => ArPage(initialComponent: component))
                           );
                         })
                         .catchError((error) {
@@ -314,7 +314,7 @@ class ComponentCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: InkWell(
-        onTap: () => Navigator.of(context).push<void>(MaterialPageRoute(builder: (c) => ArPage(component: component,))),
+        onTap: () => Navigator.of(context).push<void>(MaterialPageRoute(builder: (c) => ArPage(initialComponent: component,))),
         child: ListTile(
           leading: Image.network(component.thumbnailFileUrl,
             width: 50,
