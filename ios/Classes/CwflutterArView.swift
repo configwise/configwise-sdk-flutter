@@ -110,6 +110,16 @@ class CwflutterArView: NSObject, FlutterPlatformView {
             self.arAdapter.removeModelBy(id: modelId)
             result(nil)
             break
+            
+        case "setMeasurementShown":
+            var showSizes = false
+            if let arguments = arguments, let value = arguments["value"] as? Bool {
+                showSizes = value
+            }
+            
+            self.arAdapter.showSizes = showSizes
+            result(self.arAdapter.showSizes)
+            break
         
         default:
             result(FlutterMethodNotImplemented)

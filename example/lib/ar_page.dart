@@ -32,6 +32,8 @@ class _ArPageState extends State<ArPage> {
 
   bool _isAllowToAddOtherProducts = false;
 
+  bool _isMeasurementShown = false;
+
   @override
   void initState() {
     super.initState();
@@ -58,6 +60,17 @@ class _ArPageState extends State<ArPage> {
           title: Text(_modelLoadingProgress <= 0 || _modelLoadingProgress >= 100
               ? 'AR in Flutter'
               : 'Loading: $_modelLoadingProgress%'),
+          actions: [
+            Switch(
+              value: _isMeasurementShown,
+              onChanged: (value) {
+                arController
+                    ?.setMeasurementShown(value)
+                    ?.then((value) => setState(() => _isMeasurementShown = value))
+                    ?.catchError((e) => _onError(false, '$e'));
+              }
+            ),
+          ],
         ),
         body: Container(
           child: ArSceneView(onViewCreated: onViewCreated),

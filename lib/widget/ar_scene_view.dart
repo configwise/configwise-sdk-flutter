@@ -135,6 +135,13 @@ class ArController {
     return _channel.invokeMethod<void>('resetSelection');
   }
 
+  Future<bool> setMeasurementShown(bool value) {
+    final Map<dynamic, dynamic> params = <String, dynamic>{
+      'value': value ?? false
+    };
+    return _channel.invokeMethod<bool>('setMeasurementShown', params);
+  }
+
   Future<void> _platformCallHandler(MethodCall call) {
     try {
       switch (call.method) {
