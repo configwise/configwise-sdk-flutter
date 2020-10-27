@@ -109,7 +109,7 @@ class ArController {
     _channel?.invokeMethod<void>('dispose');
   }
 
-  Future<void> addModel(ComponentEntity component, Vector3 worldPosition) {
+  Future<void> addModel(ComponentEntity component, {Vector3 worldPosition}) {
     final jsonWorldPosition = Vector3Converter().toJson(worldPosition);
     final Map<dynamic, dynamic> params = <String, dynamic>{
       'componentId': component.id,
@@ -117,6 +117,29 @@ class ArController {
     };
 
     return _channel.invokeMethod<void>('addModel', params);
+  }
+
+  Future<void> removeModel(String modelId) {
+    final Map<dynamic, dynamic> params = <String, dynamic>{
+      'modelId': modelId
+    };
+
+    return _channel.invokeMethod<void>('removeModel', params);
+  }
+
+  Future<void> removeSelectedModel() {
+    return _channel.invokeMethod<void>('removeSelectedModel');
+  }
+
+  Future<void> resetSelection() {
+    return _channel.invokeMethod<void>('resetSelection');
+  }
+
+  Future<bool> setMeasurementShown(bool value) {
+    final Map<dynamic, dynamic> params = <String, dynamic>{
+      'value': value ?? false
+    };
+    return _channel.invokeMethod<bool>('setMeasurementShown', params);
   }
 
   Future<void> _platformCallHandler(MethodCall call) {

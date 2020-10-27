@@ -132,6 +132,16 @@ class CwflutterArView implements PlatformView, MethodChannel.MethodCallHandler, 
             result.success(null);
         }
 
+        else if (call.method.equals("dispose")) {
+            // TODO [smuravev] Validate if we need call dispose() here.
+            //                 Maybe it's unnecessary because Android PlatformView already has (see above):
+            //                 @Override public void dispose() { . . . }
+            //                 which executed automatically - so to avoid double call of this method,
+            //                 we must ignore dispose() call here.
+//            dispose();
+            result.success(null);
+        }
+
         else if (call.method.equals("addModel")) {
             String componentId = (String) args.get("componentId");
             if (componentId == null || componentId.isEmpty()) {
@@ -174,13 +184,37 @@ class CwflutterArView implements PlatformView, MethodChannel.MethodCallHandler, 
             }, Task.UI_THREAD_EXECUTOR);
         }
 
-        else if (call.method.equals("dispose")) {
-            // TODO [smuravev] Validate if we need call dispose() here.
-            //                 Maybe it's unnecessary because Android PlatformView already has (see above):
-            //                 @Override public void dispose() { . . . }
-            //                 which executed automatically - so to avoid double call of this method,
-            //                 we must ignore dispose() call here.
-//            dispose();
+        else if (call.method.equals("resetSelection")) {
+            ModelNode selectedModel = arAdapter.getSelectedModel();
+            if (selectedModel != null) {
+                selectedModel.deselect();
+            }
+            result.success(null);
+        }
+
+        else if (call.method.equals("removeSelectedModel")) {
+            ModelNode selectedModel = arAdapter.getSelectedModel();
+            if (selectedModel != null) {
+                arAdapter.removeModel(selectedModel);
+            }
+            result.success(null);
+        }
+
+        else if (call.method.equals("removeModel")) {
+            String modelId = (String) args.get("modelId");
+            if (modelId == null || modelId.isEmpty()) {
+                result.error(
+                        CwflutterPlugin.BAD_REQUEST,
+                        "'modelId' parameter must not be blank.",
+                        null
+                );
+                return;
+            }
+            for(ModelNode model : arAdapter.getModels()) {
+                if (modelId.equals(model.getId())) {
+                    arAdapter.removeModel(model);
+                }
+            }
             result.success(null);
         }
 

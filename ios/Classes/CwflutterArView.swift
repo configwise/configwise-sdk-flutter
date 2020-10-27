@@ -50,6 +50,12 @@ class CwflutterArView: NSObject, FlutterPlatformView {
             self.arAdapter.runArSession(restartArExperience: true)
             result(nil)
             break
+            
+        case "dispose":
+            self.onDispose(result)
+            result(nil)
+            break
+            
         case "addModel":
             guard let arguments = arguments, let componentId = arguments["componentId"] as? String else {
                 result(FlutterError(
@@ -78,10 +84,43 @@ class CwflutterArView: NSObject, FlutterPlatformView {
                 result(nil)
             }
             break
-        case "dispose":
-            self.onDispose(result)
+            
+        case "resetSelection":
+            self.arAdapter.resetSelection()
             result(nil)
             break
+            
+        case "removeSelectedModel":
+            if let selectedModel = self.arAdapter.selectedModelNode {
+                self.arAdapter.removeModelBy(id: selectedModel.id)
+            }
+            result(nil)
+            break
+            
+        case "removeModel":
+            guard let arguments = arguments, let modelId = arguments["modelId"] as? String else {
+                result(FlutterError(
+                    code: BAD_REQUEST,
+                    message: "'modelId' parameter must not be blank.",
+                    details: nil
+                ))
+                return
+            }
+            
+            self.arAdapter.removeModelBy(id: modelId)
+            result(nil)
+            break
+            
+        case "setMeasurementShown":
+            var showSizes = false
+            if let arguments = arguments, let value = arguments["value"] as? Bool {
+                showSizes = value
+            }
+            
+            self.arAdapter.showSizes = showSizes
+            result(self.arAdapter.showSizes)
+            break
+        
         default:
             result(FlutterMethodNotImplemented)
             break
