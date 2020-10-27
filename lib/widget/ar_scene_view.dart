@@ -109,7 +109,7 @@ class ArController {
     _channel?.invokeMethod<void>('dispose');
   }
 
-  Future<void> addModel(ComponentEntity component, Vector3 worldPosition) {
+  Future<void> addModel(ComponentEntity component, {Vector3 worldPosition}) {
     final jsonWorldPosition = Vector3Converter().toJson(worldPosition);
     final Map<dynamic, dynamic> params = <String, dynamic>{
       'componentId': component.id,

@@ -184,7 +184,7 @@ class CwflutterArView implements PlatformView, MethodChannel.MethodCallHandler, 
             }, Task.UI_THREAD_EXECUTOR);
         }
 
-        if (call.method.equals("resetSelection")) {
+        else if (call.method.equals("resetSelection")) {
             ModelNode selectedModel = arAdapter.getSelectedModel();
             if (selectedModel != null) {
                 selectedModel.deselect();
@@ -192,7 +192,7 @@ class CwflutterArView implements PlatformView, MethodChannel.MethodCallHandler, 
             result.success(null);
         }
 
-        if (call.method.equals("removeSelectedModel")) {
+        else if (call.method.equals("removeSelectedModel")) {
             ModelNode selectedModel = arAdapter.getSelectedModel();
             if (selectedModel != null) {
                 arAdapter.removeModel(selectedModel);
@@ -200,7 +200,7 @@ class CwflutterArView implements PlatformView, MethodChannel.MethodCallHandler, 
             result.success(null);
         }
 
-        if (call.method.equals("removeModel")) {
+        else if (call.method.equals("removeModel")) {
             String modelId = (String) args.get("modelId");
             if (modelId == null || modelId.isEmpty()) {
                 result.error(

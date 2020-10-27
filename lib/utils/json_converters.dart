@@ -84,11 +84,19 @@ class Vector3Converter implements JsonConverter<Vector3, List<dynamic>> {
 
   @override
   Vector3 fromJson(List<dynamic> json) {
+    if (json == null || json.length < 3) {
+      return null;
+    }
+
     return Vector3(json[0], json[1], json[2]);
   }
 
   @override
   List<dynamic> toJson(Vector3 object) {
+    if (object == null) {
+      return null;
+    }
+
     final list = List<double>(3);
     object.copyIntoArray(list);
     return list;
@@ -100,11 +108,19 @@ class Vector4Converter implements JsonConverter<Vector4, List<dynamic>> {
 
   @override
   Vector4 fromJson(List<dynamic> json) {
+    if (json == null || json.length < 4) {
+      return null;
+    }
+
     return Vector4(json[0], json[1], json[2], json[3]);
   }
 
   @override
   List<dynamic> toJson(Vector4 object) {
+    if (object == null) {
+      return null;
+    }
+
     final list = List<double>(4);
     object.copyIntoArray(list);
     return list;

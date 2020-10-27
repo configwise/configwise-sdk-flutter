@@ -6,7 +6,6 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:cwflutter/cwflutter.dart';
 import 'package:cwflutter/widget/ar_configuration.dart';
-import 'package:cwflutter/domain/component_entity.dart';
 import 'package:cwflutter/domain/app_list_item_entity.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -144,7 +143,6 @@ class _MyAppState extends State<MyApp> {
 
               Text(""),
 
-              // _showComponentsList(context),
               _showAppContent(context),
 
               Spacer(),
@@ -271,66 +269,6 @@ class _MyAppState extends State<MyApp> {
           ),
         )
       ],
-    );
-  }
-
-  Widget _showComponentsList(BuildContext context) {
-    return FutureBuilder<List<ComponentEntity>>(
-      future: Cwflutter.obtainAllComponents(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Text(
-            'ERROR: ${snapshot.error}',
-            style: TextStyle(color: Colors.red),
-          );
-        }
-
-        if (snapshot.hasData) {
-          final components = snapshot.data;
-
-          return ConstrainedBox(
-            constraints: new BoxConstraints(
-              minHeight: 160.0,
-              maxHeight: 320.0,
-            ),
-            child: ListView(
-                shrinkWrap: true,
-                children: components.map((it) => ComponentCell(component: it)).toList()
-            ),
-          );
-        }
-
-        return CircularProgressIndicator();
-      },
-    );
-  }
-}
-
-class ComponentCell extends StatelessWidget {
-  const ComponentCell({Key key, this.component}) : super(key: key);
-  final ComponentEntity component;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: InkWell(
-        onTap: () => Navigator.of(context).push<void>(MaterialPageRoute(builder: (c) => ArPage(initialComponent: component,))),
-        child: ListTile(
-          leading: Image.network(component.thumbnailFileUrl,
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
-          ),
-          title: Text(
-            component.productNumber,
-            style: Theme.of(context).textTheme.subtitle1,
-          ),
-          subtitle: Text(
-            component.genericName,
-            style: Theme.of(context).textTheme.caption,
-          ),
-        ),
-      ),
     );
   }
 }

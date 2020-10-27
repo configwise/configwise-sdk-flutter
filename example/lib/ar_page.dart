@@ -1,3 +1,4 @@
+import 'package:cwflutter/cwflutter.dart';
 import 'package:cwflutter/domain/component_entity.dart';
 import 'package:flutter/material.dart';
 
@@ -114,7 +115,7 @@ class _ArPageState extends State<ArPage> {
     } else {
       return FloatingActionButton(
         onPressed: !_isAllowToAddOtherProducts ? null : () {
-          // TODO [smuravev] Implement here: show components list here to let user select model to add to AR scene.
+          _showComponentsList(context);
         },
         child: Icon(Icons.add),
         heroTag: null,
@@ -249,12 +250,86 @@ class _ArPageState extends State<ArPage> {
 
     _firstArPlaneDetected = true;
 
-    arController?.addModel(widget.initialComponent, worldPosition)
-      .then((_) {
-      })
-      .catchError((e) {
-        _onError(false, '$e');
-      });
+    arController
+        ?.addModel(widget.initialComponent, worldPosition: worldPosition)
+        ?.catchError((e) => _onError(false, '$e'));
   }
 
+  void _showComponentsList(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return FutureBuilder<List<ComponentEntity>>(
+            future: Cwflutter.obtainAllComponents(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Text(
+                  'ERROR: ${snapshot.error}',
+                  style: TextStyle(color: Colors.red),
+                );
+              }
+
+              if (snapshot.hasData) {
+                final components = snapshot.data;
+
+                return ConstrainedBox(
+                  constraints: new BoxConstraints(
+                    minHeight: 160.0,
+                    maxHeight: 320.0,
+                  ),
+                  child: ListView(
+                      shrinkWrap: true,
+                      children: components.map((it) => ComponentCell(
+                          component: it,
+                          onTap: (component) {
+                            Navigator.pop(context);
+                            arController
+                                ?.addModel(component)
+                                ?.catchError((e) => _onError(false, '$e'));
+                          },
+                      )).toList()
+                  ),
+                );
+              }
+
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            },
+          );
+        }
+    );
+  }
+}
+
+typedef OnTapCallback = void Function(ComponentEntity component);
+
+class ComponentCell extends StatelessWidget {
+  const ComponentCell({Key key, this.component, this.onTap}) : super(key: key);
+  final ComponentEntity component;
+  final OnTapCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: InkWell(
+        onTap: () => onTap(component),
+        child: ListTile(
+          leading: Image.network(component.thumbnailFileUrl,
+            width: 50,
+            height: 50,
+            fit: BoxFit.cover,
+          ),
+          title: Text(
+            component.productNumber,
+            style: Theme.of(context).textTheme.subtitle1,
+          ),
+          subtitle: Text(
+            component.genericName,
+            style: Theme.of(context).textTheme.caption,
+          ),
+        ),
+      ),
+    );
+  }
 }
