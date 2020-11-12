@@ -12,7 +12,7 @@ class AppListItemEntity {
 
   final String description;
 
-  final String imageUrl;
+  final String imageFileKey;
 
   final int index;
 
@@ -25,7 +25,7 @@ class AppListItemEntity {
       this.type,
       this.label,
       this.description,
-      this.imageUrl,
+      this.imageFileKey,
       this.index,
       this.textColor
       );
@@ -38,7 +38,7 @@ class AppListItemEntity {
       json["type"] as String,
       json["label"] as String,
       json["description"] as String,
-      json["imageUrl"] as String,
+      json["imageFileKey"] as String,
       json["index"] as int,
       json["textColor"] as String,
     );

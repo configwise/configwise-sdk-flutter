@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -98,7 +99,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _retrieveAppContent(AppListItemEntity category) async {
-    Cwflutter.obtainAllAppListItems(category?.id)
+    Cwflutter.obtainAllAppListItems(category?.id, null, null)
         .then((appListItems) {
           setState(() {
             _currentAppContent = appListItems;
@@ -257,10 +258,15 @@ class _MyAppState extends State<MyApp> {
                   }
                 );
               } else if (appListItem.type == 'OVERLAY_IMAGE') {
-                return Image.network(
-                  appListItem.imageUrl,
-                  height: 100,
-                  fit: BoxFit.fitWidth,
+                return FutureBuilder<String>(
+                    future: Cwflutter.obtainFile(appListItem.imageFileKey),
+                    builder: (context, snapshot) {
+                      return Image.file(
+                        new File(snapshot.hasData ? snapshot.data : ''),
+                        height: 100,
+                        fit: BoxFit.fitWidth,
+                      );
+                    }
                 );
               }
 
@@ -288,10 +294,16 @@ class AppListItemCellProduct extends StatelessWidget {
           onTap(appListItem);
         },
         child: ListTile(
-          leading: Image.network(appListItem.imageUrl,
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
+          leading: FutureBuilder<String>(
+              future: Cwflutter.obtainFile(appListItem.imageFileKey),
+              builder: (context, snapshot) {
+                return Image.file(
+                  new File(snapshot.hasData ? snapshot.data : ''),
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                );
+              }
           ),
           title: Text(
             appListItem.label,
@@ -320,10 +332,16 @@ class AppListItemCellCategory extends StatelessWidget {
           onTap(appListItem);
         },
         child: ListTile(
-          leading: Image.network(appListItem.imageUrl,
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
+          leading: FutureBuilder<String>(
+              future: Cwflutter.obtainFile(appListItem.imageFileKey),
+              builder: (context, snapshot) {
+                return Image.file(
+                  new File(snapshot.hasData ? snapshot.data : ''),
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                );
+              }
           ),
           trailing: Icon(Icons.arrow_right),
           title: Text(

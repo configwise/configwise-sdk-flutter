@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cwflutter/cwflutter.dart';
 import 'package:cwflutter/domain/component_entity.dart';
 import 'package:flutter/material.dart';
@@ -273,7 +275,7 @@ class _ArPageState extends State<ArPage> {
         context: context,
         builder: (BuildContext context) {
           return FutureBuilder<List<ComponentEntity>>(
-            future: Cwflutter.obtainAllComponents(),
+            future: Cwflutter.obtainAllComponents(null, null),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return Text(
@@ -328,10 +330,16 @@ class ComponentCell extends StatelessWidget {
       child: InkWell(
         onTap: () => onTap(component),
         child: ListTile(
-          leading: Image.network(component.thumbnailFileUrl,
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
+          leading: FutureBuilder<String>(
+              future: Cwflutter.obtainFile(component.thumbnailFileKey),
+              builder: (context, snapshot) {
+                return Image.file(
+                  new File(snapshot.hasData ? snapshot.data : ''),
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                );
+              }
           ),
           title: Text(
             component.productNumber,
