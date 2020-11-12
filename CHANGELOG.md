@@ -30,3 +30,16 @@ Flutter example app (AR sceen is extended to provide 'add new product' in to AR 
 
 * 'Show Measurement' feature is implemented in iOS bridge and in the Flutter example app. NOTICE: This feature doesn't work on Android devices, 
 because Android ConfigWiseSDK doesn't support it yet (this feature is available in iOS SDK only).
+
+## 1.0.7
+
+* Flutter plugin updated to use latest versions of ConfigWise SDKs (Android SDK v1.2.10, iOS SDK v1.3.3).
+iOS example migrated to Xcode 12. Flutter AppListItemEntity and ComponentEntity have been fixed to support 
+new 'Secured Downloading' mechanism.
+
+* Optional pagination parameters (offset, max) have been added in the obtainAllComponents() and in 
+the obtainAllAppListItems() functions.
+NOTICE: Use null values in these params to obtain all entities in the transaction (without pagination).
+
+* 'Secured Downloading' and 'Usage of downloading cache' (to increase loading performance) features have been 
+implemented in the ConfigWise Flutter plugin.
