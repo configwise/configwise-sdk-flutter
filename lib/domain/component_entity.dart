@@ -14,7 +14,7 @@ class ComponentEntity {
 
   final bool isFloating;
 
-  final String thumbnailFileUrl;
+  final String thumbnailFileKey;
 
   final int totalSize;
 
@@ -28,7 +28,7 @@ class ComponentEntity {
       this.productNumber,
       this.productLink,
       this.isFloating,
-      this.thumbnailFileUrl,
+      this.thumbnailFileKey,
       this.totalSize,
       this.isVariance
   );
@@ -42,7 +42,7 @@ class ComponentEntity {
       json["productNumber"] as String,
       json["productLink"] as String,
       json["isFloating"] as bool,
-      json["thumbnailFileUrl"] as String,
+      json["thumbnailFileKey"] as String,
       json["totalSize"] as int,
       json["isVariance"] as bool,
     );

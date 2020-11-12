@@ -43,8 +43,8 @@ class Utils {
         result.put("productLink", component.getProductLink());
         result.put("isFloating", component.isFloating());
 
-        final String thumbnailFileUrl = component.getThumbnailFileUrl();
-        result.put("thumbnailFileUrl", thumbnailFileUrl != null ? thumbnailFileUrl : "");
+        final String thumbnailFileKey = component.getThumbnailFilePath();
+        result.put("thumbnailFileKey", thumbnailFileKey != null ? thumbnailFileKey : "");
 
         result.put("totalSize", component.getFilesSize());
         result.put("isVisible", component.isVisible());
@@ -68,8 +68,8 @@ class Utils {
         result.put("label", appListItem.getLabel());
         result.put("description", appListItem.getDescription());
 
-        final String imageUrl = appListItem.getImageUrl();
-        result.put("imageUrl", imageUrl != null ? imageUrl : "");
+        final String imageFileKey = appListItem.getImagePath();
+        result.put("imageFileKey", imageFileKey != null ? imageFileKey : "");
 
         result.put("index", appListItem.getIndex());
         result.put("textColor", appListItem.getTextColor());

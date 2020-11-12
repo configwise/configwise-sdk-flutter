@@ -258,7 +258,7 @@ class _MyAppState extends State<MyApp> {
                 );
               } else if (appListItem.type == 'OVERLAY_IMAGE') {
                 return Image.network(
-                  appListItem.imageUrl,
+                  appListItem.imageFileKey,
                   height: 100,
                   fit: BoxFit.fitWidth,
                 );
@@ -288,7 +288,7 @@ class AppListItemCellProduct extends StatelessWidget {
           onTap(appListItem);
         },
         child: ListTile(
-          leading: Image.network(appListItem.imageUrl,
+          leading: Image.network(appListItem.imageFileKey,
             width: 50,
             height: 50,
             fit: BoxFit.cover,
@@ -320,7 +320,7 @@ class AppListItemCellCategory extends StatelessWidget {
           onTap(appListItem);
         },
         child: ListTile(
-          leading: Image.network(appListItem.imageUrl,
+          leading: Image.network(appListItem.imageFileKey,
             width: 50,
             height: 50,
             fit: BoxFit.cover,

@@ -328,7 +328,7 @@ class ComponentCell extends StatelessWidget {
       child: InkWell(
         onTap: () => onTap(component),
         child: ListTile(
-          leading: Image.network(component.thumbnailFileUrl,
+          leading: Image.network(component.thumbnailFileKey,
             width: 50,
             height: 50,
             fit: BoxFit.cover,

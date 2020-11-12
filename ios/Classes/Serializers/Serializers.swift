@@ -38,7 +38,7 @@ func serializeComponentEntity(_ entity: ComponentEntity) -> Dictionary<String, A
         "productNumber": entity.productNumber,
         "productLink": entity.productLink,
         "isFloating": entity.isFloating,
-        "thumbnailFileUrl": entity.thumbnailFileUrl?.absoluteString ?? "",
+        "thumbnailFileKey": entity.thumbnailFilePath ?? "",
         "totalSize": entity.totalSize,
         "isVariance": entity.parent != nil
     ] as [String: Any]
@@ -52,7 +52,7 @@ func serializeAppListItemEntity(_ entity: AppListItemEntity) -> Dictionary<Strin
         "type": entity.type.rawValue,
         "label": entity.label,
         "description": entity.desc,
-        "imageUrl": entity.imageUrl?.absoluteString ?? "",
+        "imageFileKey": entity.imagePath ?? "",
         "index": entity.index,
         "textColor": entity.textColor?.rgbaString ?? ""
     ] as [String: Any]
