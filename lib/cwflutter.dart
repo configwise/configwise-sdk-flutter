@@ -48,6 +48,14 @@ class Cwflutter {
     }
   }
 
+  static Future<String> obtainFile(String fileKey) async {
+    return _channel.invokeMethod<String>('obtainFile', {
+      'file_key': fileKey,
+    }).then((value) {
+      return value;
+    });
+  }
+
   static Future<List<ComponentEntity>> obtainAllComponents(int offset, int max) async {
     final invocationResult = await _channel.invokeMethod('obtainAllComponents', {
       'offset': offset,

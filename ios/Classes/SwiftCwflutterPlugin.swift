@@ -78,6 +78,33 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
                 result(true)
             }
         }
+        
+        else if call.method == "obtainFile" {
+            guard let arguments = call.arguments as? Dictionary<String, Any?>,
+                let fileKey = arguments["file_key"] as? String
+            else {
+                result(FlutterError(
+                    code: BAD_REQUEST,
+                    message: "'file_key' parameter must not be blank.",
+                    details: nil
+                ))
+                return
+            }
+            
+            DownloadingService.sharedInstance.obtainFromLocalCache(fileKey: fileKey) { _, error in
+                if let error = error {
+                    result(FlutterError(
+                        code: INTERNAL_ERROR,
+                        message: error.localizedDescription,
+                        details: nil
+                    ))
+                    return
+                }
+                
+                let fileUrl = DownloadingService.sharedInstance.getLocallyCachedFileUrl(fileKey: fileKey)
+                result(fileUrl.path)
+            }
+        }
             
         else if call.method == "obtainAllComponents" {
             var offset: Int?

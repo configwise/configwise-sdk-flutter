@@ -11,6 +11,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import io.configwise.sdk.services.AppListItemService;
 import io.configwise.sdk.services.AuthService;
 import io.configwise.sdk.services.CompanyService;
 import io.configwise.sdk.services.ComponentService;
+import io.configwise.sdk.services.DownloadingService;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -206,6 +208,44 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
                 result.success(task.getResult());
                 return null;
             }, Task.UI_THREAD_EXECUTOR);
+        } else if (call.method.equals("obtainFile")) {
+            String fileKey = (String) args.get("file_key");
+            if (fileKey == null || fileKey.isEmpty()) {
+                result.error(
+                        BAD_REQUEST,
+                        "'file_key' parameter must not be blank.",
+                        null
+                );
+                return;
+            }
+
+            DownloadingService.getInstance().download(fileKey).continueWith(task -> {
+                if (task.isCancelled()) {
+                    String message = "Unable to obtain '" + fileKey + "' due invocation task is canceled.";
+                    Log.e(TAG, message);
+                    result.error(
+                            INTERNAL_ERROR,
+                            message,
+                            null
+                    );
+                    return null;
+                }
+
+                if (task.isFaulted()) {
+                    Exception e = task.getError();
+                    Log.e(TAG, "Unable to obtain '" + fileKey + "' due error", e);
+                    result.error(
+                            INTERNAL_ERROR,
+                            e.getMessage(),
+                            null
+                    );
+                    return null;
+                }
+
+                File file = task.getResult();
+                result.success(file != null ? file.getAbsolutePath() : "");
+                return null;
+            }, Task.UI_THREAD_EXECUTOR);
         } else if (call.method.equals("obtainAllComponents")) {
             Integer offset = (Integer) args.get("offset");
             Integer max = (Integer) args.get("max");
@@ -241,7 +281,7 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
             if (componentId == null || componentId.isEmpty()) {
                 result.error(
                         BAD_REQUEST,
-                        "'componentId' parameter must not be blank.",
+                        "'id' parameter must not be blank.",
                         null
                 );
                 return;
