@@ -48,8 +48,11 @@ class Cwflutter {
     }
   }
 
-  static Future<List<ComponentEntity>> obtainAllComponents() async {
-    final invocationResult = await _channel.invokeMethod('obtainAllComponents');
+  static Future<List<ComponentEntity>> obtainAllComponents(int offset, int max) async {
+    final invocationResult = await _channel.invokeMethod('obtainAllComponents', {
+      'offset': offset,
+      'max': max
+    });
     if (invocationResult == null) {
       return [];
     }
@@ -75,9 +78,11 @@ class Cwflutter {
     });
   }
 
-  static Future<List<AppListItemEntity>> obtainAllAppListItems(String parentId) async {
+  static Future<List<AppListItemEntity>> obtainAllAppListItems(String parentId, int offset, int max) async {
     final invocationResult = await _channel.invokeMethod('obtainAllAppListItems', {
-      'parent_id': parentId
+      'parent_id': parentId,
+      'offset': offset,
+      'max': max
     });
     if (invocationResult == null) {
       return [];

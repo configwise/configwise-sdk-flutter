@@ -273,7 +273,7 @@ class _ArPageState extends State<ArPage> {
         context: context,
         builder: (BuildContext context) {
           return FutureBuilder<List<ComponentEntity>>(
-            future: Cwflutter.obtainAllComponents(),
+            future: Cwflutter.obtainAllComponents(null, null),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return Text(

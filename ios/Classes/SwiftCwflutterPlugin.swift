@@ -80,7 +80,14 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
         }
             
         else if call.method == "obtainAllComponents" {
-            self.obtainAllComponents() { serializedComponents, error in
+            var offset: Int?
+            var max: Int?
+            if let arguments = call.arguments as? Dictionary<String, Any?> {
+                offset = arguments["offset"] as? Int
+                max = arguments["max"] as? Int
+            }
+            
+            self.obtainAllComponents(offset: offset, max: max) { serializedComponents, error in
                 if let error = error {
                     result(FlutterError(
                         code: INTERNAL_ERROR,
@@ -119,12 +126,16 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
         }
         
         else if call.method == "obtainAllAppListItems" {
-            var parentId: String? = nil
+            var parentId: String?
+            var offset: Int?
+            var max: Int?
             if let arguments = call.arguments as? Dictionary<String, Any?> {
                 parentId = arguments["parent_id"] as? String
+                offset = arguments["offset"] as? Int
+                max = arguments["max"] as? Int
             }
             
-            self.obtainAllAppListItems(parentId: parentId) { serializedAppListItems, error in
+            self.obtainAllAppListItems(parentId: parentId, offset: offset, max: max) { serializedAppListItems, error in
                 if let error = error {
                     result(FlutterError(
                         code: INTERNAL_ERROR,
@@ -232,9 +243,11 @@ extension SwiftCwflutterPlugin {
     }
     
     private func obtainAllComponents(
+        offset: Int?,
+        max: Int?,
         block: @escaping ([Dictionary<String, Any?>], Error?) -> Void
     ) {
-        ComponentService.sharedInstance.obtainAllComponentsByCurrentCatalog() { entities, error in
+        ComponentService.sharedInstance.obtainAllComponentsByCurrentCatalog(offset: offset, max: max) { entities, error in
             if let error = error {
                 block([], error)
                 return
@@ -266,6 +279,8 @@ extension SwiftCwflutterPlugin {
     
     private func obtainAllAppListItems(
         parentId: String?,
+        offset: Int?,
+        max: Int?,
         block: @escaping ([Dictionary<String, Any?>], Error?) -> Void
     ) {
         var parent: AppListItemEntity?
@@ -274,7 +289,7 @@ extension SwiftCwflutterPlugin {
             parent?.objectId = parentId
         }
         
-        AppListItemService.sharedInstance.obtainAppListItemsByCurrentCatalog(parent: parent) { [weak self] entities, error in
+        AppListItemService.sharedInstance.obtainAppListItemsByCurrentCatalog(parent: parent, offset: offset, max: max) { [weak self] entities, error in
             guard let self = self else {
                 block([], nil)
                 return

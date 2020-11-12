@@ -207,7 +207,10 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
                 return null;
             }, Task.UI_THREAD_EXECUTOR);
         } else if (call.method.equals("obtainAllComponents")) {
-            obtainAllComponents().continueWith(task -> {
+            Integer offset = (Integer) args.get("offset");
+            Integer max = (Integer) args.get("max");
+
+            obtainAllComponents(offset, max).continueWith(task -> {
                 if (task.isCancelled()) {
                     String message = "Unable to obtain components due invocation task is canceled.";
                     Log.e(TAG, message);
@@ -272,7 +275,10 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
             }, Task.UI_THREAD_EXECUTOR);
         } else if (call.method.equals("obtainAllAppListItems")) {
             String parentId = (String) args.get("parent_id");
-            obtainAllAppListItems(parentId).continueWith(task -> {
+            Integer offset = (Integer) args.get("offset");
+            Integer max = (Integer) args.get("max");
+
+            obtainAllAppListItems(parentId, offset, max).continueWith(task -> {
                 if (task.isCancelled()) {
                     String message = "Unable to obtain appListItems due invocation task is canceled.";
                     Log.e(TAG, message);
@@ -381,8 +387,8 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
                 });
     }
 
-    private Task<List<Map<String, ?>>> obtainAllComponents() {
-        return ComponentService.getInstance().obtainAllComponentsByCurrentCatalog()
+    private Task<List<Map<String, ?>>> obtainAllComponents(@Nullable Integer offset, @Nullable Integer max) {
+        return ComponentService.getInstance().obtainAllComponentsByCurrentCatalog(offset, max)
                 .onSuccessTask(task -> {
                     List<Map<String, ?>> result = new ArrayList<>();
 
@@ -409,14 +415,14 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
                 });
     }
 
-    private Task<List<Map<String, ?>>> obtainAllAppListItems(@Nullable String parentId) {
+    private Task<List<Map<String, ?>>> obtainAllAppListItems(@Nullable String parentId, @Nullable Integer offset, @Nullable Integer max) {
         AppListItemEntity parent = null;
         if (parentId != null && !parentId.isEmpty()) {
             parent = new AppListItemEntity();
             parent.setObjectId(parentId);
         }
 
-        return AppListItemService.getInstance().obtainAllAppListItemsByCurrentCatalogAndParent(parent)
+        return AppListItemService.getInstance().obtainAllAppListItemsByCurrentCatalogAndParent(parent, offset, max)
                 .onSuccessTask(task -> {
                     List<Map<String, ?>> result = new ArrayList<>();
 

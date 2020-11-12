@@ -98,7 +98,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _retrieveAppContent(AppListItemEntity category) async {
-    Cwflutter.obtainAllAppListItems(category?.id)
+    Cwflutter.obtainAllAppListItems(category?.id, null, null)
         .then((appListItems) {
           setState(() {
             _currentAppContent = appListItems;
