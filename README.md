@@ -1,7 +1,7 @@
 # cwflutter
 
 **Note:** ConfigWise SDK flutter plugin is only supported by mobile devices with A9 or later processors 
-(iPhone 6s/7/SE/8/X, iPad 2017/Pro) on iOS 11 and newer. For some features iOS 12 is required.
+(iPhone 6s/7/SE/8/X, iPad 2017/Pro) on iOS 12 and newer.
 
 ## Getting Started
 

@@ -43,3 +43,10 @@ NOTICE: Use null values in these params to obtain all entities in the transactio
 
 * 'Secured Downloading' and 'Usage of downloading cache' (to increase loading performance) features have been 
 implemented in the ConfigWise Flutter plugin.
+
+## 1.0.8
+
+* Flutter plugin updated to use latest version of ConfigWise iOS SDKs (v1.3.4)
+
+* Minimal deployment target has been set as iOS 12.0
+

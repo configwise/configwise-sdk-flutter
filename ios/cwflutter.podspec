@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'cwflutter'
-  s.version          = '0.0.1'
+  s.version          = '1.0.8'
   s.summary          = 'ConfigWise SDK Flutter plugin'
   s.description      = <<-DESC
 ConfigWise SDK Flutter plugin
@@ -16,7 +16,7 @@ ConfigWise SDK Flutter plugin
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
   s.dependency 'ConfigWiseSDK'
-  s.platform = :ios, '13.0'
+  s.platform = :ios, '12.0'
 
   # Flutter.framework does not contain a i386 slice. Only x86_64 simulators are supported.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'VALID_ARCHS[sdk=iphonesimulator*]' => 'x86_64' }
