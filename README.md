@@ -24,7 +24,7 @@ Import `package:cwflutter/cwflutter.dart`, and initiate `Cwflutter Plugin` with 
 
 ```dart
     try {
-      await Cwflutter.initialize("YOUR_COMPANY_AUTH_TOKEN");
+      await Cwflutter.initialize("YOUR_COMPANY_AUTH_TOKEN", 0, true);
     } on PlatformException catch (e) {
       print('Failed to initialize ConfigWise SDK due error: ${error.message}');
     }

@@ -69,7 +69,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _initConfigWiseSdk() async {
-    Cwflutter.initialize("YOUR_COMPANY_AUTH_TOKEN")
+    Cwflutter.initialize("YOUR_COMPANY_AUTH_TOKEN", 0, true)
         .then((isInitialized) {
           if (!isInitialized) {
             return Future.value(false);
