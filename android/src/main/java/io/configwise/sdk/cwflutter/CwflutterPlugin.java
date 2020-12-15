@@ -173,9 +173,25 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
                 return;
             }
 
+            Integer dbAccessPeriod = (Integer) args.get("dbAccessPeriod");
+            if (dbAccessPeriod == null) {
+                dbAccessPeriod = 0;
+            }
+
+            Boolean lightEstimateEnabled = (Boolean) args.get("lightEstimateEnabled");
+            if (lightEstimateEnabled == null) {
+                lightEstimateEnabled = true;
+            }
+
             ConfigWiseSDK.initialize(new ConfigWiseSDK.Builder(this.activity.getApplicationContext())
                     .sdkVariant(ConfigWiseSDK.SdkVariant.B2C)
                     .companyAuthToken(companyAuthToken)
+
+                    // Here we convert secs to msecs (for Android code only, because Android ConfigWiseSDK
+                    // requires this parameter in msecs).
+                    .dbAccessPeriod(dbAccessPeriod * 1000)
+
+                    .lightEstimateEnabled(lightEstimateEnabled)
                     .debugLogging(false)
                     .debug3d(false)
             );
@@ -434,9 +450,7 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
 
                     List<ComponentEntity> entities = task.getResult();
                     for (ComponentEntity it : entities) {
-                        if (it.isVisible()) {
-                            result.add(Utils.serializeComponentEntity(it));
-                        }
+                        result.add(Utils.serializeComponentEntity(it));
                     }
 
                     return Task.forResult(result);
@@ -482,23 +496,13 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
             return false;
         }
 
-        if (entity.isOverlayImage()) {
-            return entity.isImageExist()
-                    || !entity.getLabel().isEmpty()
-                    || !entity.getDescription().isEmpty();
-        }
-        else if (entity.isNavigationItem()) {
-            return !entity.getLabel().isEmpty() || !entity.getDescription().isEmpty();
-        }
-        else if (entity.isMainProduct()) {
+        if (entity.isMainProduct()) {
             final ComponentEntity component = entity.getComponent();
             if (component == null) {
                 return false;
             }
-
-            return component.isVisible();
         }
 
-        return false;
+        return true;
     }
 }

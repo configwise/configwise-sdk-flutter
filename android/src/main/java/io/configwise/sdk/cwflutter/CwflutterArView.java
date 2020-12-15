@@ -52,6 +52,8 @@ class CwflutterArView implements PlatformView, MethodChannel.MethodCallHandler, 
     @Nullable
     private ArAdapter arAdapter;
 
+    private boolean firstPlaneDetected = false;
+
     @NonNull
     private final Application.ActivityLifecycleCallbacks activityLifecycleCallback = new Application.ActivityLifecycleCallbacks() {
         @Override
@@ -312,17 +314,25 @@ class CwflutterArView implements PlatformView, MethodChannel.MethodCallHandler, 
 
     @Override
     public void onPlaneDetected(@NonNull Plane plane, @NonNull Anchor anchor) {
-        if (arAdapter != null) {
-            arAdapter.disablePlaneDiscoveryInstruction();
-
-            // Attach a node to the anchor with the scene as the parent
-            final AnchorNode anchorNode = new AnchorNode(anchor);
-            anchorNode.setParent(arAdapter.getArSceneView().getScene());
-
-            Utils.runOnUiThread(() -> {
-                channel.invokeMethod("onArPlaneDetected", Utils.serialize(anchorNode.getWorldPosition()));
-            });
+        if (arAdapter == null) {
+            return;
         }
+
+        arAdapter.disablePlaneDiscoveryInstruction();
+
+        // Attach a node to the anchor with the scene as the parent
+        final AnchorNode anchorNode = new AnchorNode(anchor);
+        anchorNode.setParent(arAdapter.getArSceneView().getScene());
+
+        if (firstPlaneDetected) {
+            return;
+        }
+
+        firstPlaneDetected = true;
+
+        Utils.runOnUiThread(() -> {
+            channel.invokeMethod("onArFirstPlaneDetected", Utils.serialize(anchorNode.getWorldPosition()));
+        });
     }
 
     @Override

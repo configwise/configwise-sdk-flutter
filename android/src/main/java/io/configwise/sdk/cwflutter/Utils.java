@@ -37,6 +37,10 @@ class Utils {
         final Map<String, Object> result = new HashMap<>();
 
         result.put("id", component.getObjectId());
+
+        final ComponentEntity parent = component.getParent();
+        result.put("parent_id", parent != null ? parent.getObjectId() : "");
+
         result.put("genericName", component.getGenericName());
         result.put("description", component.getDescription());
         result.put("productNumber", component.getProductNumber());
@@ -47,7 +51,7 @@ class Utils {
         result.put("thumbnailFileKey", thumbnailFileKey != null ? thumbnailFileKey : "");
 
         result.put("totalSize", component.getFilesSize());
-        result.put("isVisible", component.isVisible());
+        result.put("isVariance", parent != null);
 
         return result;
     }

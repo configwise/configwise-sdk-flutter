@@ -72,19 +72,6 @@ class ArController {
   /// On failure the session will be paused.
   void Function(bool isCritical, String message) onError;
 
-  /// This is called when a session is interrupted.
-  /// A session will be interrupted and no longer able to track when
-  /// it fails to receive required sensor data. This happens when video capture is interrupted,
-  /// for example when the application is sent to the background or when there are
-  /// multiple foreground applications (see AVCaptureSessionInterruptionReason).
-  /// No additional frame updates will be delivered until the interruption has ended.
-  void Function(String message) onArSessionInterrupted;
-
-  /// This is called when a session interruption has ended.
-  /// A session will continue running from the last known state once
-  /// the interruption has ended. If the device has moved, anchors will be misaligned.
-  void Function(String message) onArSessionInterruptionEnded;
-
   void Function(bool restarted) onArSessionStarted;
 
   void Function() onArSessionPaused;
@@ -103,7 +90,7 @@ class ArController {
 
   void Function() onSelectionReset;
 
-  void Function(Vector3 worldPosition) onArPlaneDetected;
+  void Function(Vector3 worldPosition) onArFirstPlaneDetected;
 
   void dispose() {
     _channel?.invokeMethod<void>('dispose');
@@ -149,18 +136,6 @@ class ArController {
           if (onError != null) {
             print("[ERROR] ${call.arguments}");
             onError(call.arguments['isCritical'], call.arguments['message']);
-          }
-          break;
-
-        case 'onArSessionInterrupted':
-          if (onArSessionInterrupted != null) {
-            onArSessionInterrupted(call.arguments);
-          }
-          break;
-
-        case 'onArSessionInterruptionEnded':
-          if (onArSessionInterruptionEnded != null) {
-            onArSessionInterruptionEnded(call.arguments);
           }
           break;
 
@@ -218,9 +193,9 @@ class ArController {
           }
           break;
 
-        case 'onArPlaneDetected':
-          if (onArPlaneDetected != null) {
-            onArPlaneDetected(
+        case 'onArFirstPlaneDetected':
+          if (onArFirstPlaneDetected != null) {
+            onArFirstPlaneDetected(
                 const Vector3Converter().fromJson(call.arguments as List)
             );
           }

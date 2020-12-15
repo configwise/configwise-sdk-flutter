@@ -5,27 +5,25 @@ import ConfigWiseSDK
 
 public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
     
-    static var channel: FlutterMethodChannel?
-    
-    static var registrar: FlutterPluginRegistrar? = nil
+    private var channel: FlutterMethodChannel
 
     public static func register(with registrar: FlutterPluginRegistrar) {
-        channel = FlutterMethodChannel(name: "cwflutter", binaryMessenger: registrar.messenger())
-        SwiftCwflutterPlugin.registrar = registrar
+        let channel = FlutterMethodChannel(name: "cwflutter", binaryMessenger: registrar.messenger())
         
         registrar.addMethodCallDelegate(
-            SwiftCwflutterPlugin(),
-            channel: channel!
+            SwiftCwflutterPlugin(channel: channel),
+            channel: channel
         )
         
         let arFactory = ArFactory(messenger: registrar.messenger())
         registrar.register(arFactory, withId: "cwflutter_ar")
     }
     
-    public override init() {
+    init(channel: FlutterMethodChannel) {
+        self.channel = channel
+        
         super.init()
         
-        // Let's add observers
         initObservers()
     }
     
@@ -55,10 +53,19 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
                 ))
                 return
             }
+
+            var dbAccessPeriod: Int = 0
+            var lightEstimateEnabled = true
+            if let arguments = call.arguments as? Dictionary<String, Any?> {
+                dbAccessPeriod = arguments["dbAccessPeriod"] as? Int ?? 0
+                lightEstimateEnabled = arguments["lightEstimateEnabled"] as? Bool ?? true
+            }
             
             ConfigWiseSDK.initialize([
                 .variant: SdkVariant.B2C,
                 .companyAuthToken: companyAuthToken,
+                .dbAccessPeriod: dbAccessPeriod,
+                .lightEstimateEnabled: lightEstimateEnabled,
                 .debugLogging: false,
                 .debug3d: false
             ])
@@ -280,7 +287,7 @@ extension SwiftCwflutterPlugin {
                 return
             }
             
-            let serializedEntities = entities.filter { $0.isVisible }.map { serializeComponentEntity($0) }
+            let serializedEntities = entities.map { serializeComponentEntity($0) }
             block(serializedEntities, nil)
         }
     }
@@ -294,7 +301,7 @@ extension SwiftCwflutterPlugin {
                 block(nil, error)
                 return
             }
-            guard let entity = entity, entity.isVisible else {
+            guard let entity = entity else {
                 block(nil, nil)
                 return
             }
@@ -336,21 +343,13 @@ extension SwiftCwflutterPlugin {
     private func isAppListItemVisible(_ entity: AppListItemEntity) -> Bool {
         if !entity.enabled { return false }
         
-        if entity.isOverlayImage {
-            return entity.isImageExist()
-                || !entity.label.isEmpty
-                || !entity.desc.isEmpty
-        }
-        else if entity.isNavigationItem {
-            return !entity.label.isEmpty || !entity.desc.isEmpty
-        }
-        else if entity.isMainProduct {
+        if entity.isMainProduct {
             guard let component = entity.component else {
                 return false
             }
-            return component.isVisible
         }
-        return false
+
+        return true
     }
 }
 
@@ -374,20 +373,19 @@ extension SwiftCwflutterPlugin {
     }
     
     @objc func onUnsupportedAppVersion(notification: NSNotification) {
-        DispatchQueue.main.async {
-            let message = "Unsupported ConfigWiseSDK version. Please update it."
-            print("[ERROR] \(message)")
-            if let channel = SwiftCwflutterPlugin.channel {
-                channel.invokeMethod("onSignOut", arguments: message)
-            }
+        let message = "Unsupported ConfigWiseSDK version. Please update it."
+        print("[ERROR] \(message)")
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.channel.invokeMethod("onSignOut", arguments: message)
         }
     }
 
     @objc func onSignOut(notification: NSNotification) {
-        DispatchQueue.main.async {
-            if let channel = SwiftCwflutterPlugin.channel {
-                channel.invokeMethod("onSignOut", arguments: "Unauthorized.")
-            }
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.channel.invokeMethod("onSignOut", arguments: "Unauthorized.")
         }
     }
 }

@@ -128,7 +128,7 @@ class CwflutterArView: NSObject, FlutterPlatformView {
     }
     
     func onDispose(_ result: FlutterResult) {
-        self.sceneView.session.pause()
+        self.arAdapter.pauseArSession()
         result(nil)
     }
 }
@@ -138,99 +138,128 @@ class CwflutterArView: NSObject, FlutterPlatformView {
 extension CwflutterArView: ArManagementDelegate {
     
     func onArShowHelpMessage(type: ArHelpMessageType?, message: String) {
-        channel.invokeMethod("onArShowHelpMessage", arguments: message)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.channel.invokeMethod("onArShowHelpMessage", arguments: message)
+        }
     }
     
     func onArHideHelpMessage() {
-        channel.invokeMethod("onArHideHelpMessage", arguments: nil)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.channel.invokeMethod("onArHideHelpMessage", arguments: nil)
+        }
     }
     
     func onArSessionError(error: Error, message: String) {
-        channel.invokeMethod(
-            "onError",
-            arguments: [
-                "isCritical": true,
-                "message": !message.isEmpty ? message : error.localizedDescription
-            ]
-        )
-    }
-    
-    func onArSessionInterrupted(message: String) {
-        channel.invokeMethod("onArSessionInterrupted", arguments: message)
-    }
-    
-    func onArSessionInterruptionEnded(message: String) {
-        channel.invokeMethod("onArSessionInterruptionEnded", arguments: message)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.channel.invokeMethod(
+                "onError",
+                arguments: [
+                    "isCritical": true,
+                    "message": !message.isEmpty ? message : error.localizedDescription
+                ]
+            )
+        }
     }
     
     func onArSessionStarted(restarted: Bool) {
-        channel.invokeMethod("onArSessionStarted", arguments: restarted)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.channel.invokeMethod("onArSessionStarted", arguments: restarted)
+        }
     }
     
     func onArSessionPaused() {
-        channel.invokeMethod("onArSessionPaused", arguments: nil)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.channel.invokeMethod("onArSessionPaused", arguments: nil)
+        }
     }
     
     func onArUnsupported(message: String) {
-        channel.invokeMethod(
-            "onError",
-            arguments: [
-                "isCritical": true,
-                "message": message
-            ]
-        )
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.channel.invokeMethod(
+                "onError",
+                arguments: [
+                    "isCritical": true,
+                    "message": message
+                ]
+            )
+        }
     }
     
-    func onArPlaneDetected(simdWorldPosition: simd_float3) {
-        channel.invokeMethod("onArPlaneDetected", arguments: serializeArray(simdWorldPosition))
+    func onArFirstPlaneDetected(simdWorldPosition: simd_float3) {
+        let serializedSimdWorldPosition = serializeArray(simdWorldPosition)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.channel.invokeMethod("onArFirstPlaneDetected", arguments: serializedSimdWorldPosition)
+        }
     }
     
     func onArModelAdded(modelId: String, componentId: String, error: Error?) {
         if let error = error {
-            channel.invokeMethod(
-                "onError",
-                arguments: [
-                    "isCritical": false,
-                    "message": error.localizedDescription
-                ]
-            )
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.channel.invokeMethod(
+                    "onError",
+                    arguments: [
+                        "isCritical": false,
+                        "message": error.localizedDescription
+                    ]
+                )
+            }
             return
         }
-        
-        channel.invokeMethod(
-            "onArModelAdded",
-            arguments: [
-                "modelId": modelId,
-                "componentId": componentId
-            ]
-        )
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.channel.invokeMethod(
+                "onArModelAdded",
+                arguments: [
+                    "modelId": modelId,
+                    "componentId": componentId
+                ]
+            )
+        }
     }
     
     func onModelPositionChanged(modelId: String, componentId: String, position: SCNVector3, rotation: SCNVector4) {
     }
     
     func onModelSelected(modelId: String, componentId: String) {
-        channel.invokeMethod(
-            "onModelSelected",
-            arguments: [
-                "modelId": modelId,
-                "componentId": componentId
-            ]
-        )
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.channel.invokeMethod(
+                "onModelSelected",
+                arguments: [
+                    "modelId": modelId,
+                    "componentId": componentId
+                ]
+            )
+        }
     }
     
     func onModelDeleted(modelId: String, componentId: String) {
-        channel.invokeMethod(
-            "onModelDeleted",
-            arguments: [
-                "modelId": modelId,
-                "componentId": componentId
-            ]
-        )
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.channel.invokeMethod(
+                "onModelDeleted",
+                arguments: [
+                    "modelId": modelId,
+                    "componentId": componentId
+                ]
+            )
+        }
     }
     
     func onSelectionReset() {
-        channel.invokeMethod("onSelectionReset", arguments: nil)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.channel.invokeMethod("onSelectionReset", arguments: nil)
+        }
     }
 }
 
@@ -255,13 +284,16 @@ extension CwflutterArView {
             }
             
             ModelLoaderService.sharedInstance.loadModelBy(component: component, block: { model, error in
-                self.channel.invokeMethod(
-                    "onModelLoadingProgress",
-                    arguments: [
-                        "componentId": componentId,
-                        "progress": 100
-                    ]
-                )
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    self.channel.invokeMethod(
+                        "onModelLoadingProgress",
+                        arguments: [
+                            "componentId": componentId,
+                            "progress": 100
+                        ]
+                    )
+                }
 
                 if let error = error {
                     block(error)
@@ -275,13 +307,16 @@ extension CwflutterArView {
                 self.arAdapter.addModel(modelNode: model, simdWorldPosition: simdWorldPosition, selectModel: true)
                 block(nil)
             }, progressBlock: { status, completed in
-                self.channel.invokeMethod(
-                    "onModelLoadingProgress",
-                    arguments: [
-                        "componentId": componentId,
-                        "progress": Int(completed * 100)
-                    ]
-                )
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    self.channel.invokeMethod(
+                        "onModelLoadingProgress",
+                        arguments: [
+                            "componentId": componentId,
+                            "progress": Int(completed * 100)
+                        ]
+                    )
+                }
             })
         }
     }

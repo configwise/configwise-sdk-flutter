@@ -26,8 +26,6 @@ class _ArPageState extends State<ArPage> {
 
   int _modelLoadingProgress = 0;
 
-  bool _firstArPlaneDetected = false;
-
   String _selectedModelId;
 
   String _selectedComponentId;
@@ -83,8 +81,6 @@ class _ArPageState extends State<ArPage> {
   void onViewCreated(ArController arController) {
     this.arController = arController;
     this.arController?.onError = _onError;
-    this.arController?.onArSessionInterrupted = _onArSessionInterrupted;
-    this.arController?.onArSessionInterruptionEnded = _onArSessionInterruptionEnded;
     this.arController?.onArSessionStarted = _onArSessionStarted;
     this.arController?.onArSessionPaused = _onArSessionPaused;
     this.arController?.onArShowHelpMessage = _onArShowHelpMessage;
@@ -94,7 +90,7 @@ class _ArPageState extends State<ArPage> {
     this.arController?.onModelSelected = _onModelSelected;
     this.arController?.onModelLoadingProgress = _onModelLoadingProgress;
     this.arController?.onSelectionReset = _onSelectionReset;
-    this.arController?.onArPlaneDetected = _onArPlaneDetected;
+    this.arController?.onArFirstPlaneDetected = _onArFirstPlaneDetected;
   }
 
   Widget _showToolbar() {
@@ -204,14 +200,6 @@ class _ArPageState extends State<ArPage> {
     }
   }
 
-  void _onArSessionInterrupted(String message) {
-    _showHelpMessage(message);
-  }
-
-  void _onArSessionInterruptionEnded(String message) {
-    _showHelpMessage(message);
-  }
-
   void _onArSessionStarted(bool restarted) {
     print('[DEBUG] _onArSessionStarted: restarted: $restarted');
   }
@@ -258,13 +246,7 @@ class _ArPageState extends State<ArPage> {
     });
   }
 
-  void _onArPlaneDetected(VectorMath64.Vector3 worldPosition) {
-    if (_firstArPlaneDetected) {
-      return;
-    }
-
-    _firstArPlaneDetected = true;
-
+  void _onArFirstPlaneDetected(VectorMath64.Vector3 worldPosition) {
     arController
         ?.addModel(widget.initialComponent, worldPosition: worldPosition)
         ?.catchError((e) => _onError(false, '$e'));

@@ -50,3 +50,28 @@ implemented in the ConfigWise Flutter plugin.
 
 * Minimal deployment target has been set as iOS 12.0
 
+## 1.0.9
+
+* Flutter plugin updated to use latest version of ConfigWise iOS SDKs (v1.3.8)
+
+* Improvements in floor detection.
+
+* Memory leaks (in iOS ConfigWiseSDK) have been fixed.
+
+* Flutter plugin has been updated to use latest version of Android ConfigWiseSDK (v1.2.12)
+
+* `onArPlaneDetected` callback interface has been renamed to `onArFirstPlaneDetected`.
+
+* Two redundant callback functions have been removed from interface (`onArSessionInterrupted`, `onArSessionInterruptionEnded`).
+
+* Extra ConfigWiseSDK initialization options have been added:
+
+    * `dbAccessPeriod` (sec, 0 by default) - set number of seconds here if you wish 
+    to query locally cached data instead to request data from server DB.
+    Eg: `1hr = 1 * 60 * 60 sec`.
+    Set 0 to always request data from server DB.
+    
+    * `lightEstimateEnabled` (true by default) - If enabled then real environment lights detected by your camera will be 
+    used to calculate visualisation settings in the AR scene.
+
+* Pagination issues (to obtain entities) have been fixed.
