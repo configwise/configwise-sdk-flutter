@@ -75,3 +75,17 @@ implemented in the ConfigWise Flutter plugin.
     used to calculate visualisation settings in the AR scene.
 
 * Pagination issues (to obtain entities) have been fixed.
+
+## 1.0.10
+
+* Flutter plugin has been updated to use latest version of Android ConfigWiseSDK (v1.2.13).
+
+* Obfuscator, minificator and shrinker rules (specific for Google R8 obfuscator) have been fixed in 
+the Android part to exclude obfuscating of code which uses Java reflection on runtime, such as:
+`org.greenrobot.eventbus.Subscribe`, `androidx.lifecycle.Lifecycle`, `androidx.lifecycle.LifecycleObserver`.
+
+* Now, you can skip usage of `--no-shrink` build parameter in your release builds.
+
+* Flutter plugin updated to use latest version of ConfigWise iOS SDKs (v1.3.9).
+
+* Small bugs have been fixed in iOS ConfigWiseSDK (specific for Product Link functionality).

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -44,6 +45,7 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 /**
  * CwflutterPlugin
  */
+@Keep
 public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler {
 
     private static final String TAG = CwflutterPlugin.class.getSimpleName();
@@ -365,6 +367,7 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
         }
     }
 
+    @Keep
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void onEventSignOut(SignOutEvent event) {
         Utils.runOnUiThread(() -> {
@@ -374,6 +377,7 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
         });
     }
 
+    @Keep
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void onEventUnsupportedAppVersion(UnsupportedAppVersionEvent event) {
         String message = "Unsupported ConfigWiseSDK version. Please update it.";

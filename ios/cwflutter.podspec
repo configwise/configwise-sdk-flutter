@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'cwflutter'
-  s.version          = '1.0.9'
+  s.version          = '1.0.10'
   s.summary          = 'ConfigWise SDK Flutter plugin'
   s.description      = <<-DESC
 ConfigWise SDK Flutter plugin
@@ -15,7 +15,7 @@ ConfigWise SDK Flutter plugin
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.dependency 'ConfigWiseSDK', '1.3.8'
+  s.dependency 'ConfigWiseSDK', '1.3.9'
   s.platform = :ios, '12.0'
 
   # Flutter.framework does not contain a i386 slice. Only x86_64 simulators are supported.
