@@ -89,3 +89,19 @@ the Android part to exclude obfuscating of code which uses Java reflection on ru
 * Flutter plugin updated to use latest version of ConfigWise iOS SDKs (v1.3.9).
 
 * Small bugs have been fixed in iOS ConfigWiseSDK (specific for Product Link functionality).
+
+## 1.0.11
+
+* Pinch gestures (to resize 3D models in the AR scene) have been disabled.
+
+* Flutter plugin has been updated to use latest version of Android ConfigWiseSDK (v1.2.13).
+
+* Bug has been fixed (sometimes 3D model is locked and unable to move it in AR scene in Android app).
+
+* `onModelLoadingProgress` callback interface has been attached to Android bridge.
+NOTICE: Currently (on Android platform) this callback executed twise. 1'st time - when AR starts 
+loading of 3D model (`progress` parameter is `0`). 2'nd time (`progress` parameter is `100`) it will 
+be run after 3D mode loading completed). Further Android `onModelLoadingProgress` functionality will 
+be implemented successfully (it will be executed multiple times instead of currently twice).
+On iOS platform this callback executes multiple times (`progress` parameter gives values `0...100`).
+Use this callback to show (hide) progress indicator of loading.

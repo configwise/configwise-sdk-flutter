@@ -35,7 +35,7 @@ class CwflutterArView: NSObject, FlutterPlatformView {
         self.arAdapter.gesturesEnabled = true
         self.arAdapter.movementEnabled = true
         self.arAdapter.rotationEnabled = true
-        self.arAdapter.scalingEnabled = true
+        self.arAdapter.scalingEnabled = false
         self.arAdapter.snappingsEnabled = false
         self.arAdapter.overlappingOfModelsAllowed = true
     }

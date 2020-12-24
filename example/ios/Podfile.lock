@@ -15,7 +15,7 @@ PODS:
     - Parse
     - ParseLiveQuery
     - SwiftTryCatch
-  - cwflutter (1.0.10):
+  - cwflutter (1.0.11):
     - ConfigWiseSDK (= 1.3.9)
     - Flutter
   - Flutter (1.0.0)
@@ -70,7 +70,7 @@ SPEC CHECKSUMS:
   Bolts-Swift: afbbaf8c8186e7f769be4afa656949c14087ba44
   CocoaLumberjack: e8955b9d337ac307103b0a34fd141c32f27e53c5
   ConfigWiseSDK: d91b1406b783ee44276ce60c277b0527ba356bc9
-  cwflutter: 9df8c3afcf9d03a587cc8a165e4bffcb0fa91ffc
+  cwflutter: 0d6b04a63a07f287ee955f68c0ac79701afd29ae
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   fluttertoast: 6122fa75143e992b1d3470f61000f591a798cc58
   Parse: e40fdb9c7d665823b7fe9865949cac9a53eb2ce7

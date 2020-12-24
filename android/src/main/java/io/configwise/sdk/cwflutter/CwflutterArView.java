@@ -348,7 +348,13 @@ class CwflutterArView implements PlatformView, MethodChannel.MethodCallHandler, 
     }
 
     @Override
-    public void onModelAdded(@NonNull ModelNode model) {
+    public void onModelAdded(@NonNull ModelNode model, @Nullable Exception e) {
+        if (e != null) {
+            Log.e(TAG, "Unable to add model due error", e);
+            onArError(e);
+            return;
+        }
+
         final Map<String, Object> args = new HashMap<>();
         args.put("modelId", model.getId());
         args.put("componentId", model.getComponent().getObjectId());
@@ -389,25 +395,13 @@ class CwflutterArView implements PlatformView, MethodChannel.MethodCallHandler, 
     }
 
     @Override
-    public void onModelLoadingStarted(@NonNull ModelNode model) {
-    }
+    public void onModelLoadingProgress(@NonNull ModelNode model, double completed) {
+        final Map<String, Object> args = new HashMap<>();
+        args.put("componentId", model.getComponent().getObjectId());
+        args.put("progress", (int) (completed * 100));
 
-    @Override
-    public void onModelLoadingFinished(@NonNull ModelNode model, @Nullable Exception e, boolean cancelled, boolean completed) {
-        if (e != null) {
-            Log.e(TAG, "Unable to load model due error", e);
-            onArError(e);
-            return;
-        }
-
-        if (cancelled) {
-            onArError(new RuntimeException("Loading of model is canceled"));
-            return;
-        }
-
-        if (!completed) {
-            onArError(new RuntimeException("Loading of model has not been completed"));
-            return;
-        }
+        Utils.runOnUiThread(() -> {
+            channel.invokeMethod("onModelLoadingProgress", args);
+        });
     }
 }

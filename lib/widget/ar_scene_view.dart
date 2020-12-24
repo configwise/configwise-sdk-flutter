@@ -140,65 +140,45 @@ class ArController {
           break;
 
         case 'onArSessionStarted':
-          if (onArSessionStarted != null) {
-            onArSessionStarted(call.arguments);
-          }
+          onArSessionStarted?.call(call.arguments);
           break;
 
         case 'onArSessionPaused':
-          if (onArSessionPaused != null) {
-            onArSessionPaused();
-          }
+          onArSessionPaused?.call();
           break;
 
         case 'onArShowHelpMessage':
-          if (onArShowHelpMessage != null) {
-            onArShowHelpMessage(call.arguments);
-          }
+          onArShowHelpMessage?.call(call.arguments);
           break;
 
         case 'onArHideHelpMessage':
-          if (onArHideHelpMessage != null) {
-            onArHideHelpMessage();
-          }
+          onArHideHelpMessage?.call();
           break;
 
         case 'onArModelAdded':
-          if (onArModelAdded != null) {
-            onArModelAdded(call.arguments['modelId'], call.arguments['componentId']);
-          }
+          onArModelAdded?.call(call.arguments['modelId'], call.arguments['componentId']);
           break;
 
         case 'onModelDeleted':
-          if (onModelDeleted != null) {
-            onModelDeleted(call.arguments['modelId'], call.arguments['componentId']);
-          }
+          onModelDeleted?.call(call.arguments['modelId'], call.arguments['componentId']);
           break;
 
         case 'onModelSelected':
-          if (onModelSelected != null) {
-            onModelSelected(call.arguments['modelId'], call.arguments['componentId']);
-          }
+          onModelSelected?.call(call.arguments['modelId'], call.arguments['componentId']);
           break;
 
         case 'onModelLoadingProgress':
-          if (onModelLoadingProgress != null) {
-            onModelLoadingProgress(call.arguments['componentId'], call.arguments['progress']);
-          }
+          onModelLoadingProgress?.call(call.arguments['componentId'], call.arguments['progress']);
           break;
 
         case 'onSelectionReset':
-          if (onSelectionReset != null) {
-            onSelectionReset();
-          }
+          onSelectionReset?.call();
           break;
 
         case 'onArFirstPlaneDetected':
-          if (onArFirstPlaneDetected != null) {
-            onArFirstPlaneDetected(
-                const Vector3Converter().fromJson(call.arguments as List)
-            );
-          }
+          onArFirstPlaneDetected?.call(
+              const Vector3Converter().fromJson(call.arguments as List)
+          );
           break;
 
         default:
