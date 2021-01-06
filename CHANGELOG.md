@@ -105,3 +105,11 @@ be run after 3D mode loading completed). Further Android `onModelLoadingProgress
 be implemented successfully (it will be executed multiple times instead of currently twice).
 On iOS platform this callback executes multiple times (`progress` parameter gives values `0...100`).
 Use this callback to show (hide) progress indicator of loading.
+
+## 1.0.12
+
+* Flutter plugin has been updated to use latest version of Android ConfigWiseSDK (v1.2.15).
+
+* Localization of AR error messages have been implemented in Android ConfigWiseSDK (EN, NL languages).
+
+* Small improvements in Android ConfigWiseSDK.

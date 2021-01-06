@@ -15,7 +15,7 @@ PODS:
     - Parse
     - ParseLiveQuery
     - SwiftTryCatch
-  - cwflutter (1.0.11):
+  - cwflutter (1.0.12):
     - ConfigWiseSDK (= 1.3.9)
     - Flutter
   - Flutter (1.0.0)
