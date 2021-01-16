@@ -113,3 +113,12 @@ Use this callback to show (hide) progress indicator of loading.
 * Localization of AR error messages have been implemented in Android ConfigWiseSDK (EN, NL languages).
 
 * Small improvements in Android ConfigWiseSDK.
+
+
+## 1.0.13
+
+* Flutter plugin has been updated to use latest version of Android ConfigWiseSDK (v1.2.16).
+
+* Low memory management has been implemented in Android ConfigWiseSDK. This throws critical error (onArCriticalError) 
+if not enough RAM to continue AR session.
+
