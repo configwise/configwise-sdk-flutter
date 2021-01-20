@@ -180,6 +180,11 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
                 dbAccessPeriod = 0;
             }
 
+            Integer androidLowMemoryThreshold = (Integer) args.get("androidLowMemoryThreshold");
+            if (androidLowMemoryThreshold == null) {
+                androidLowMemoryThreshold = 400 * 1024 * 1024;
+            }
+
             Boolean lightEstimateEnabled = (Boolean) args.get("lightEstimateEnabled");
             if (lightEstimateEnabled == null) {
                 lightEstimateEnabled = true;
@@ -192,6 +197,8 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
                     // Here we convert secs to msecs (for Android code only, because Android ConfigWiseSDK
                     // requires this parameter in msecs).
                     .dbAccessPeriod(dbAccessPeriod * 1000)
+
+                    .lowMemoryThresholdInBytes(androidLowMemoryThreshold)
 
                     .lightEstimateEnabled(lightEstimateEnabled)
                     .debugLogging(false)

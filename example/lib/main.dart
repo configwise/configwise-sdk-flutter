@@ -69,7 +69,12 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _initConfigWiseSdk() async {
-    Cwflutter.initialize("YOUR_COMPANY_AUTH_TOKEN", 0, true)
+    Cwflutter.initialize(
+        "YOUR_COMPANY_AUTH_TOKEN",
+        0,
+        400 * 1024 * 1024, // 400 Mb - we recommend to set 400 Mb or more for androidLowMemoryThreshold
+        true
+    )
         .then((isInitialized) {
           if (!isInitialized) {
             return Future.value(false);

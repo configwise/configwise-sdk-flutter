@@ -26,10 +26,16 @@ class Cwflutter {
     });
   }
 
-  static Future<bool> initialize(String companyAuthToken, int dbAccessPeriod, bool lightEstimateEnabled) {
+  static Future<bool> initialize(
+      String companyAuthToken,
+      int dbAccessPeriod,
+      int androidLowMemoryThreshold,
+      bool lightEstimateEnabled
+  ) {
     return _channel.invokeMethod<bool>('initialize', {
       'companyAuthToken': companyAuthToken,
       'dbAccessPeriod': dbAccessPeriod,
+      'androidLowMemoryThreshold': androidLowMemoryThreshold,
       'lightEstimateEnabled': lightEstimateEnabled
     });
   }

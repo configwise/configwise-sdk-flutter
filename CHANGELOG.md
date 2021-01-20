@@ -122,3 +122,16 @@ Use this callback to show (hide) progress indicator of loading.
 * Low memory management has been implemented in Android ConfigWiseSDK. This throws critical error (onArCriticalError) 
 if not enough RAM to continue AR session.
 
+## 1.0.14
+
+* Flutter plugin has been updated to use latest version of Android ConfigWiseSDK (v1.2.18).
+
+* Android: Runtime crash `Fatal Exception: com.google.ar.core.exceptions.FatalException` has been handled and fixed.
+
+* Android: We fixed memory-checker and critical error handling to guarantee thread-safe.
+
+* Android: LOW_MEMORY_THRESHOLD parameter has been made as customizable parameter. You can set it 
+in `Cwflutter.initialize()` invocation (see `androidLowMemoryThreshold` parameter).
+NOTICE: this parameter must be set as amount of bytes. Default value is 400 Mb (400 * 1024 * 1024).
+
+* Android: Potential memory leaks have been fixed in `ConfigWiseSDK`, `DownloadingService` classes.

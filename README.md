@@ -24,7 +24,12 @@ Import `package:cwflutter/cwflutter.dart`, and initiate `Cwflutter Plugin` with 
 
 ```dart
     try {
-      await Cwflutter.initialize("YOUR_COMPANY_AUTH_TOKEN", 0, true);
+      await Cwflutter.initialize(
+        "YOUR_COMPANY_AUTH_TOKEN",
+        0,
+        400 * 1024 * 1024, // 400 Mb - we recommend to set 400 Mb or more for androidLowMemoryThreshold
+        true
+      );
     } on PlatformException catch (e) {
       print('Failed to initialize ConfigWise SDK due error: ${error.message}');
     }
