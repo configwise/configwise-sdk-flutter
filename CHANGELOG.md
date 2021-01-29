@@ -135,3 +135,18 @@ in `Cwflutter.initialize()` invocation (see `androidLowMemoryThreshold` paramete
 NOTICE: this parameter must be set as amount of bytes. Default value is 400 Mb (400 * 1024 * 1024).
 
 * Android: Potential memory leaks have been fixed in `ConfigWiseSDK`, `DownloadingService` classes.
+
+## 1.0.15
+
+* Usage of Apple TrueDepth API has been removed from ConfigWise Flutter plugin. 
+
+* Flutter plugin updated to use latest version of ConfigWise iOS SDKs (v1.3.10).
+
+* ASSIMP library has been removed from iOS ConfigWiseSDK (because not used anymore).
+
+* Unused `SimpleReachability` has been removed from iOS ConfigWiseSDK.
+  
+* Introduced 'Zip capability' in iOS ConfigWiseSDK (now, we can load 3D models from zip files uploaded through CBO).
+  
+* Memory usage improvements in iOS ConfigWiseSDK.
+

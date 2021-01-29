@@ -98,7 +98,7 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
                 return
             }
             
-            DownloadingService.sharedInstance.obtainFromLocalCache(fileKey: fileKey) { _, error in
+            DownloadingService.sharedInstance.obtainFileFromLocalCache(fileKey: fileKey) { fileUrl, error in
                 if let error = error {
                     result(FlutterError(
                         code: INTERNAL_ERROR,
@@ -108,8 +108,7 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
                     return
                 }
                 
-                let fileUrl = DownloadingService.sharedInstance.getLocallyCachedFileUrl(fileKey: fileKey)
-                result(fileUrl.path)
+                result(fileUrl?.path ?? "")
             }
         }
             
@@ -226,24 +225,37 @@ extension SwiftCwflutterPlugin {
         switch configurationType {
         case 0:
             return ARWorldTrackingConfiguration.isSupported
-        case 1:
-            if #available(iOS 12.0, *) {
-                return ARImageTrackingConfiguration.isSupported
-            } else {
-                return false
-            }
-        case 2:
-            #if !DISABLE_TRUEDEPTH_API
-            return ARFaceTrackingConfiguration.isSupported
-            #else
-            return false
-            #endif
-        case 3:
-            if #available(iOS 13.0, *) {
-                return ARBodyTrackingConfiguration.isSupported
-            } else {
-                return false
-            }
+        
+        // TODO [smuravev] Here, we disable code related on Apple TrueDepth API (because currently not used).
+        //                 Do not enable it until we really start using it (otherwise Apple rejects validation in AppStore):
+        //                 Here is what Apple requests to solve:
+        //                 --
+        //                 We have started the review of your app, but we are not able to continue because we need additional information about how your app uses information collected by the TrueDepth API.
+        //                 To help us proceed with the review of your app, please provide complete and detailed information to the following questions.
+        //                 What information is your app collecting using the TrueDepth API?
+        //                 For what purposes are you collecting this information? Please provide a complete and clear explanation of all planned uses of this data.
+        //                 Will the data be shared with any third parties? Where will this information be stored?
+        //                 --
+        //
+//        case 1:
+//            if #available(iOS 12.0, *) {
+//                return ARImageTrackingConfiguration.isSupported
+//            } else {
+//                return false
+//            }
+//        case 2:
+//            #if !DISABLE_TRUEDEPTH_API
+//            return ARFaceTrackingConfiguration.isSupported
+//            #else
+//            return false
+//            #endif
+//        case 3:
+//            if #available(iOS 13.0, *) {
+//                return ARBodyTrackingConfiguration.isSupported
+//            } else {
+//                return false
+//            }
+            
         default:
             return false
         }
