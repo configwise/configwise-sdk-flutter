@@ -91,7 +91,7 @@ class CwflutterArView: NSObject, FlutterPlatformView {
             break
             
         case "removeSelectedModel":
-            if let selectedModel = self.arAdapter.selectedModelNode {
+            if let selectedModel = self.arAdapter.selectedModel {
                 self.arAdapter.removeModelBy(id: selectedModel.id)
             }
             result(nil)
@@ -151,14 +151,27 @@ extension CwflutterArView: ArManagementDelegate {
         }
     }
     
-    func onArSessionError(error: Error, message: String) {
+    func onAdapterError(error: Error) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.channel.invokeMethod(
+                "onError",
+                arguments: [
+                    "isCritical": false,
+                    "message": error.localizedDescription
+                ]
+            )
+        }
+    }
+    
+    func onAdapterErrorCritical(error: Error) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.channel.invokeMethod(
                 "onError",
                 arguments: [
                     "isCritical": true,
-                    "message": !message.isEmpty ? message : error.localizedDescription
+                    "message": error.localizedDescription
                 ]
             )
         }
@@ -199,7 +212,7 @@ extension CwflutterArView: ArManagementDelegate {
         }
     }
     
-    func onArModelAdded(modelId: String, componentId: String, error: Error?) {
+    func onModelAdded(modelId: String, componentId: String, error: Error?) {
         if let error = error {
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }

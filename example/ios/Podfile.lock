@@ -5,22 +5,22 @@ PODS:
   - CocoaLumberjack/Core (3.7.0)
   - CocoaLumberjack/Swift (3.7.0):
     - CocoaLumberjack/Core
-  - ConfigWiseSDK (1.3.10):
+  - ConfigWiseSDK (1.4.1):
     - Alamofire
     - CocoaLumberjack/Swift
     - Parse
     - ParseLiveQuery
     - Zip
-  - cwflutter (1.0.15):
-    - ConfigWiseSDK (= 1.3.10)
+  - cwflutter (1.0.16):
+    - ConfigWiseSDK (= 1.4.1)
     - Flutter
   - Flutter (1.0.0)
   - fluttertoast (0.0.2):
     - Flutter
     - Toast
-  - Parse (1.19.1):
-    - Parse/Core (= 1.19.1)
-  - Parse/Core (1.19.1):
+  - Parse (1.19.2):
+    - Parse/Core (= 1.19.2)
+  - Parse/Core (1.19.2):
     - Bolts/Tasks (= 1.9.1)
   - ParseLiveQuery (2.8.0):
     - Bolts-Swift (~> 1.5.0)
@@ -61,11 +61,11 @@ SPEC CHECKSUMS:
   Bolts: 8c1e8aab2f603387b8b9924f57d1d64f43d3ffdc
   Bolts-Swift: afbbaf8c8186e7f769be4afa656949c14087ba44
   CocoaLumberjack: e8955b9d337ac307103b0a34fd141c32f27e53c5
-  ConfigWiseSDK: 229f7893d8c0e5bff15761b5e1c345da474496c5
-  cwflutter: c7d4cfa2328835f52a66e6ddb6a0545bac2610e6
+  ConfigWiseSDK: 360e84d7edfa7c6371e337181f8ee808cb1e0cac
+  cwflutter: 2fe79cde5cc71b9c1c45b21c6965c108572ffeb6
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   fluttertoast: 6122fa75143e992b1d3470f61000f591a798cc58
-  Parse: e40fdb9c7d665823b7fe9865949cac9a53eb2ce7
+  Parse: 081fb8755c3000fd11df817eec235def233d0af3
   ParseLiveQuery: 366b5876aa20074ea7fea52446376e102447b5df
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196

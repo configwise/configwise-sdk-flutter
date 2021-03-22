@@ -25,7 +25,7 @@ import java.util.Map;
 
 import bolts.Task;
 import io.configwise.sdk.ar.ArAdapter;
-import io.configwise.sdk.ar.ModelNode;
+import io.configwise.sdk.ar.ComponentModelNode;
 import io.configwise.sdk.domain.ComponentEntity;
 import io.configwise.sdk.services.ComponentService;
 import io.flutter.plugin.common.BinaryMessenger;
@@ -187,17 +187,17 @@ class CwflutterArView implements PlatformView, MethodChannel.MethodCallHandler, 
         }
 
         else if (call.method.equals("resetSelection")) {
-            ModelNode selectedModel = arAdapter.getSelectedModel();
-            if (selectedModel != null) {
-                selectedModel.deselect();
+            ComponentModelNode selectedComponentModel = arAdapter.getSelectedComponentModel();
+            if (selectedComponentModel != null) {
+                selectedComponentModel.deselect();
             }
             result.success(null);
         }
 
         else if (call.method.equals("removeSelectedModel")) {
-            ModelNode selectedModel = arAdapter.getSelectedModel();
-            if (selectedModel != null) {
-                arAdapter.removeModel(selectedModel);
+            ComponentModelNode selectedComponentModel = arAdapter.getSelectedComponentModel();
+            if (selectedComponentModel != null) {
+                arAdapter.removeComponentModel(selectedComponentModel);
             }
             result.success(null);
         }
@@ -212,9 +212,9 @@ class CwflutterArView implements PlatformView, MethodChannel.MethodCallHandler, 
                 );
                 return;
             }
-            for(ModelNode model : arAdapter.getModels()) {
+            for(ComponentModelNode model : arAdapter.getComponentModels()) {
                 if (modelId.equals(model.getId())) {
-                    arAdapter.removeModel(model);
+                    arAdapter.removeComponentModel(model);
                 }
             }
             result.success(null);
@@ -238,7 +238,7 @@ class CwflutterArView implements PlatformView, MethodChannel.MethodCallHandler, 
                         return Task.forResult(false);
                     }
 
-                    arAdapter.addModel(
+                    arAdapter.addComponentModel(
                             component,
                             null,
                             worldPosition,
@@ -348,16 +348,16 @@ class CwflutterArView implements PlatformView, MethodChannel.MethodCallHandler, 
     }
 
     @Override
-    public void onModelAdded(@NonNull ModelNode model, @Nullable Exception e) {
+    public void onComponentModelAdded(@NonNull ComponentModelNode componentModel, @Nullable Exception e) {
         if (e != null) {
-            Log.e(TAG, "Unable to add model due error", e);
+            Log.e(TAG, "Unable to add componentModel due error", e);
             onArError(e);
             return;
         }
 
         final Map<String, Object> args = new HashMap<>();
-        args.put("modelId", model.getId());
-        args.put("componentId", model.getComponent().getObjectId());
+        args.put("modelId", componentModel.getId());
+        args.put("componentId", componentModel.getComponent().getObjectId());
 
         Utils.runOnUiThread(() -> {
             channel.invokeMethod("onArModelAdded", args);
@@ -366,10 +366,10 @@ class CwflutterArView implements PlatformView, MethodChannel.MethodCallHandler, 
     }
 
     @Override
-    public void onModelDeleted(@NonNull ModelNode model) {
+    public void onComponentModelDeleted(@NonNull ComponentModelNode componentModel) {
         final Map<String, Object> args = new HashMap<>();
-        args.put("modelId", model.getId());
-        args.put("componentId", model.getComponent().getObjectId());
+        args.put("modelId", componentModel.getId());
+        args.put("componentId", componentModel.getComponent().getObjectId());
 
         Utils.runOnUiThread(() -> {
             channel.invokeMethod("onModelDeleted", args);
@@ -377,10 +377,10 @@ class CwflutterArView implements PlatformView, MethodChannel.MethodCallHandler, 
     }
 
     @Override
-    public void onModelSelected(@NonNull ModelNode model) {
+    public void onComponentModelSelected(@NonNull ComponentModelNode componentModel) {
         final Map<String, Object> args = new HashMap<>();
-        args.put("modelId", model.getId());
-        args.put("componentId", model.getComponent().getObjectId());
+        args.put("modelId", componentModel.getId());
+        args.put("componentId", componentModel.getComponent().getObjectId());
 
         Utils.runOnUiThread(() -> {
             channel.invokeMethod("onModelSelected", args);
@@ -388,16 +388,16 @@ class CwflutterArView implements PlatformView, MethodChannel.MethodCallHandler, 
     }
 
     @Override
-    public void onModelDeselected(@NonNull ModelNode model) {
+    public void onComponentModelDeselected(@NonNull ComponentModelNode componentModel) {
         Utils.runOnUiThread(() -> {
             channel.invokeMethod("onSelectionReset", null);
         });
     }
 
     @Override
-    public void onModelLoadingProgress(@NonNull ModelNode model, double completed) {
+    public void onComponentModelLoadingProgress(@NonNull ComponentModelNode componentModel, double completed) {
         final Map<String, Object> args = new HashMap<>();
-        args.put("componentId", model.getComponent().getObjectId());
+        args.put("componentId", componentModel.getComponent().getObjectId());
         args.put("progress", (int) (completed * 100));
 
         Utils.runOnUiThread(() -> {

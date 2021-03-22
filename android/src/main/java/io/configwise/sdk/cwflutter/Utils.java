@@ -50,7 +50,7 @@ class Utils {
         final String thumbnailFileKey = component.getThumbnailFilePath();
         result.put("thumbnailFileKey", thumbnailFileKey != null ? thumbnailFileKey : "");
 
-        result.put("totalSize", component.getFilesSize());
+        result.put("totalSize", component.getTotalSize());
         result.put("isVariance", parent != null);
 
         return result;
