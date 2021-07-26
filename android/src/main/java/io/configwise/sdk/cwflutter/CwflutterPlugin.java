@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import bolts.Task;
+import com.parse.boltsinternal.Task;
 import io.configwise.sdk.ConfigWiseSDK;
 
 import io.configwise.sdk.domain.AppListItemEntity;
@@ -25,7 +25,6 @@ import io.configwise.sdk.domain.CompanyEntity;
 import io.configwise.sdk.domain.ComponentEntity;
 import io.configwise.sdk.domain.UserEntity;
 import io.configwise.sdk.eventbus.SignOutEvent;
-import io.configwise.sdk.eventbus.UnsupportedAppVersionEvent;
 import io.configwise.sdk.services.AppListItemService;
 import io.configwise.sdk.services.AuthService;
 import io.configwise.sdk.services.CompanyService;
@@ -380,18 +379,6 @@ public class CwflutterPlugin implements FlutterPlugin, ActivityAware, MethodCall
         Utils.runOnUiThread(() -> {
             if (channel != null) {
                 channel.invokeMethod("onSignOut", "Unauthorized.");
-            }
-        });
-    }
-
-    @Keep
-    @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-    public void onEventUnsupportedAppVersion(UnsupportedAppVersionEvent event) {
-        String message = "Unsupported ConfigWiseSDK version. Please update it.";
-        Log.e(TAG, message);
-        Utils.runOnUiThread(() -> {
-            if (channel != null) {
-                channel.invokeMethod("onSignOut", message);
             }
         });
     }

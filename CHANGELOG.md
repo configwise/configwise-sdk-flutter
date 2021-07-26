@@ -155,3 +155,11 @@ NOTICE: this parameter must be set as amount of bytes. Default value is 400 Mb (
 * Flutter Plugin has been updated to use latest stable version of iOS ConfigWiseSDK (v1.4.1).
 
 * Usage of latest version of Android ConfigWiseSDK (v1.3.0) has been added.
+
+## 1.0.17
+
+* Flutter Plugin has been updated to use latest stable version of iOS ConfigWiseSDK (v1.5.2).
+
+* Usage of latest version of Android ConfigWiseSDK (v1.4.2) has been added.
+
+* Hardening improvements.

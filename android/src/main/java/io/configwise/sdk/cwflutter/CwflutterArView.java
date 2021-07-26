@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import bolts.Task;
+import com.parse.boltsinternal.Task;
 import io.configwise.sdk.ar.ArAdapter;
 import io.configwise.sdk.ar.ComponentModelNode;
 import io.configwise.sdk.domain.ComponentEntity;
@@ -218,6 +218,21 @@ class CwflutterArView implements PlatformView, MethodChannel.MethodCallHandler, 
                 }
             }
             result.success(null);
+        }
+
+        else if (call.method.equals("setMeasurementShown")) {
+            Boolean showSizes = (Boolean) args.get("value");
+            if (showSizes == null) {
+                showSizes = false;
+            }
+
+            if (showSizes) {
+                arAdapter.showSizes();
+            } else {
+                arAdapter.hideSizes();
+            }
+
+            result.success(arAdapter.isSizesShown());
         }
 
         else {

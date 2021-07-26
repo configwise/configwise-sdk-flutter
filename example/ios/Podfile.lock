@@ -1,18 +1,18 @@
 PODS:
-  - Alamofire (5.4.1)
+  - Alamofire (5.4.3)
   - Bolts-Swift (1.5.0)
   - Bolts/Tasks (1.9.1)
-  - CocoaLumberjack/Core (3.7.0)
-  - CocoaLumberjack/Swift (3.7.0):
+  - CocoaLumberjack/Core (3.7.2)
+  - CocoaLumberjack/Swift (3.7.2):
     - CocoaLumberjack/Core
-  - ConfigWiseSDK (1.4.1):
+  - ConfigWiseSDK (1.5.2):
     - Alamofire
     - CocoaLumberjack/Swift
     - Parse
     - ParseLiveQuery
-    - Zip
-  - cwflutter (1.0.16):
-    - ConfigWiseSDK (= 1.4.1)
+    - ZIPFoundation
+  - cwflutter (1.0.17):
+    - ConfigWiseSDK (= 1.5.2)
     - Flutter
   - Flutter (1.0.0)
   - fluttertoast (0.0.2):
@@ -28,7 +28,7 @@ PODS:
     - Starscream (~> 4.0.4)
   - Starscream (4.0.4)
   - Toast (4.0.0)
-  - Zip (2.1.1)
+  - ZIPFoundation (0.9.12)
 
 DEPENDENCIES:
   - cwflutter (from `.symlinks/plugins/cwflutter/ios`)
@@ -46,7 +46,7 @@ SPEC REPOS:
     - ParseLiveQuery
     - Starscream
     - Toast
-    - Zip
+    - ZIPFoundation
 
 EXTERNAL SOURCES:
   cwflutter:
@@ -57,19 +57,19 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/fluttertoast/ios"
 
 SPEC CHECKSUMS:
-  Alamofire: 2291f7d21ca607c491dd17642e5d40fdcda0e65c
+  Alamofire: e447a2774a40c996748296fa2c55112fdbbc42f9
   Bolts: 8c1e8aab2f603387b8b9924f57d1d64f43d3ffdc
   Bolts-Swift: afbbaf8c8186e7f769be4afa656949c14087ba44
-  CocoaLumberjack: e8955b9d337ac307103b0a34fd141c32f27e53c5
-  ConfigWiseSDK: 360e84d7edfa7c6371e337181f8ee808cb1e0cac
-  cwflutter: 2fe79cde5cc71b9c1c45b21c6965c108572ffeb6
+  CocoaLumberjack: b7e05132ff94f6ae4dfa9d5bce9141893a21d9da
+  ConfigWiseSDK: 9b1abf5b9cddef81979947357370141ee694135a
+  cwflutter: dac4f1f475dde6464870ecd39b5df9251b81f08f
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   fluttertoast: 6122fa75143e992b1d3470f61000f591a798cc58
   Parse: 081fb8755c3000fd11df817eec235def233d0af3
   ParseLiveQuery: 366b5876aa20074ea7fea52446376e102447b5df
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
-  Zip: 414f59909701fda9a84ab774ebe0f5449b1082cc
+  ZIPFoundation: e27423c004a5a1410c15933407747374e7c6cb6e
 
 PODFILE CHECKSUM: 83fc8b2b0731f43d2da05e09ef128d372dbec24f
 

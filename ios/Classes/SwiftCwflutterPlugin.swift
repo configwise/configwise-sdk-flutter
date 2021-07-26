@@ -372,26 +372,10 @@ extension SwiftCwflutterPlugin {
     private func initObservers() {
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(self.onUnsupportedAppVersion),
-            name: ConfigWiseSDK.unsupportedAppVersionNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
             selector: #selector(self.onSignOut),
             name: ConfigWiseSDK.signOutNotification,
             object: nil
         )
-    }
-    
-    @objc func onUnsupportedAppVersion(notification: NSNotification) {
-        let message = "Unsupported ConfigWiseSDK version. Please update it."
-        print("[ERROR] \(message)")
-        
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            self.channel.invokeMethod("onSignOut", arguments: message)
-        }
     }
 
     @objc func onSignOut(notification: NSNotification) {

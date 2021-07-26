@@ -274,6 +274,12 @@ extension CwflutterArView: ArManagementDelegate {
             self.channel.invokeMethod("onSelectionReset", arguments: nil)
         }
     }
+    
+    func onAnchorModelModelSelected(modelId: String, anchorObjectId: String) {
+    }
+    
+    func onAnchorModelModelDeselected(modelId: String, anchorObjectId: String) {
+    }
 }
 
 // MARK: - Models
