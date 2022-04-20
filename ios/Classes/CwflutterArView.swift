@@ -7,7 +7,7 @@
 
 import Foundation
 import ARKit
-import ConfigWiseSDK
+import CWSDKRender
 
 class CwflutterArView: NSObject, FlutterPlatformView {
     

@@ -7,7 +7,7 @@
 
 import Foundation
 import ARKit
-import ConfigWiseSDK
+import CWSDKData
 
 func serializeArray(_ array: simd_float2) -> Array<Float> {
     return [array[0], array[1]]

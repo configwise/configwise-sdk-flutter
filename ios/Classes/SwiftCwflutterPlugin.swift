@@ -1,7 +1,7 @@
 import Flutter
 import UIKit
 import ARKit
-import ConfigWiseSDK
+import CWSDKData
 
 public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
     
