@@ -80,11 +80,6 @@ class _MyAppState extends State<MyApp> {
             return Future.value(false);
           }
 
-          // Let's skip authorization step if we already authorized.
-          if (Cwflutter.authState == AuthState.authorised) {
-            return Future.value(true);
-          }
-
           return Cwflutter.signIn();
         })
         .then((isInitialized) {

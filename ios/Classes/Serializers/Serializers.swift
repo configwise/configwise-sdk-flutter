@@ -29,31 +29,31 @@ func serializeMatrix(_ matrix: simd_float4x4) -> Array<Float> {
     return [matrix.columns.0, matrix.columns.1, matrix.columns.2, matrix.columns.3].flatMap { serializeArray($0) }
 }
 
-func serializeComponentEntity(_ entity: ComponentEntity) -> Dictionary<String, Any> {
+func serializeComponentEntity(_ entity: CWCatalogItemEntity) -> Dictionary<String, Any> {
     [
-        "id": entity.objectId ?? "",
-        "parent_id": entity.parent?.objectId ?? "",
-        "genericName": entity.genericName,
-        "description": entity.desc,
-        "productNumber": entity.productNumber,
-        "productLink": entity.productLink,
-        "isFloating": entity.isFloating,
-        "thumbnailFileKey": entity.thumbnailFilePath ?? "",
-        "totalSize": entity.totalSize,
-        "isVariance": entity.parent != nil
+        "id": "\(entity.id)",
+        "parent_id": "",
+        "genericName": entity.name,
+        "description": "",
+        "productNumber": entity.ean ?? "",
+        "productLink": entity.productUrl?.absoluteString ?? "",
+        "isFloating": false,
+        "thumbnailFileKey": entity.thumbnailUrl?.absoluteString ?? "",
+        "totalSize": 0,
+        "isVariance": false
     ] as [String: Any]
 }
 
-func serializeAppListItemEntity(_ entity: AppListItemEntity) -> Dictionary<String, Any> {
+func serializeAppListItemEntity(_ entity: CWCatalogItemEntity) -> Dictionary<String, Any> {
     [
-        "id": entity.objectId ?? "",
-        "parent_id": entity.parent?.objectId ?? "",
-        "component_id": entity.component?.objectId ?? "",
-        "type": entity.type.rawValue,
-        "label": entity.label,
-        "description": entity.desc,
-        "imageFileKey": entity.imagePath ?? "",
-        "index": entity.index,
-        "textColor": entity.textColor?.rgbaString ?? ""
+        "id": "\(entity.id)",
+        "parent_id": "",
+        "component_id": "\(entity.id)",
+        "type": "MAIN_PRODUCT",
+        "label": entity.name,
+        "description": "",
+        "imageFileKey": entity.thumbnailUrl?.absoluteString ?? "",
+        "index": 0,
+        "textColor": ""
     ] as [String: Any]
 }

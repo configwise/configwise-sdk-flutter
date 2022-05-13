@@ -1,11 +1,19 @@
 import Flutter
-import UIKit
 import ARKit
 import CWSDKData
+import Combine
 
 public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
     
     private var channel: FlutterMethodChannel
+
+    private var subscriptions = Set<AnyCancellable>()
+
+    private var authRepository: CWAuthRepository!
+
+    private var downloadingRepository: CWDownloadingRepository!
+
+    private var catalogItemRepository: CWCatalogItemRepository!
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "cwflutter", binaryMessenger: registrar.messenger())
@@ -24,7 +32,12 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
         
         super.init()
         
-        initObservers()
+        NotificationCenter.default.publisher(for: ConfigWiseSDK.unauthorizedNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.channel.invokeMethod("onSignOut", arguments: "Unauthorized.")
+            }
+            .store(in: &self.subscriptions)
     }
     
     deinit {
@@ -44,42 +57,45 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
 
         else if call.method == "initialize" {
             guard let arguments = call.arguments as? Dictionary<String, Any>,
-                let companyAuthToken = arguments["companyAuthToken"] as? String
+                let channelToken = arguments["channelToken"] as? String
             else {
                 result(FlutterError(
-                    code: BAD_REQUEST,
-                    message: "'companyAuthToken' parameter must not be blank.",
+                    code: "0",
+                    message: "'channelToken' parameter must not be blank.",
                     details: nil
                 ))
                 return
             }
 
-            var dbAccessPeriod: Int = 0
-            var lightEstimateEnabled = true
-            if let arguments = call.arguments as? Dictionary<String, Any?> {
-                dbAccessPeriod = arguments["dbAccessPeriod"] as? Int ?? 0
-                lightEstimateEnabled = arguments["lightEstimateEnabled"] as? Bool ?? true
-            }
-            
             ConfigWiseSDK.initialize([
-                .variant: SdkVariant.B2C,
-                .companyAuthToken: companyAuthToken,
-                .dbAccessPeriod: dbAccessPeriod,
-                .lightEstimateEnabled: lightEstimateEnabled,
-                .debugLogging: false,
-                .debug3d: false
+                .channelToken(channelToken),
+                .authMode(.b2c),
+                .testMode(false)
             ])
+
+            self.authRepository = CWAuthRepositoryImpl()
+            self.downloadingRepository = CWDownloadingRepositoryImpl()
+            self.catalogItemRepository = CWCatalogItemRepositoryImpl()
+
             result(true)
         }
 
         else if call.method == "signIn" {
             self.signIn() { error in
                 if let error = error {
-                    result(FlutterError(
-                        code: UNAUTHORIZED,
-                        message: error.localizedDescription,
-                        details: nil
-                    ))
+                    if let cwError = error as? CWError, case .invocationFailed(let reason) = cwError {
+                        result(FlutterError(
+                            code: "\(reason.statusCode)",
+                            message: error.localizedDescription,
+                            details: nil
+                        ))
+                    } else {
+                        result(FlutterError(
+                            code: "0",
+                            message: error.localizedDescription,
+                            details: nil
+                        ))
+                    }
                     return
                 }
                 result(true)
@@ -91,23 +107,40 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
                 let fileKey = arguments["file_key"] as? String
             else {
                 result(FlutterError(
-                    code: BAD_REQUEST,
+                    code: "0",
                     message: "'file_key' parameter must not be blank.",
                     details: nil
                 ))
                 return
             }
-            
-            DownloadingService.sharedInstance.obtainFileFromLocalCache(fileKey: fileKey) { fileUrl, error in
+
+            guard let url = URL(string: fileKey) else {
+                result(FlutterError(
+                    code: "0",
+                    message: "'file_key' value must be downloading URL in iOS.",
+                    details: nil
+                ))
+                return
+            }
+
+            downloadingRepository.externalDownload(url) { fileUrl, error in
                 if let error = error {
-                    result(FlutterError(
-                        code: INTERNAL_ERROR,
-                        message: error.localizedDescription,
-                        details: nil
-                    ))
+                    if let cwError = error as? CWError, case .invocationFailed(let reason) = cwError {
+                        result(FlutterError(
+                            code: "\(reason.statusCode)",
+                            message: error.localizedDescription,
+                            details: nil
+                        ))
+                    } else {
+                        result(FlutterError(
+                            code: "0",
+                            message: error.localizedDescription,
+                            details: nil
+                        ))
+                    }
                     return
                 }
-                
+
                 result(fileUrl?.path ?? "")
             }
         }
@@ -122,11 +155,19 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
             
             self.obtainAllComponents(offset: offset, max: max) { serializedComponents, error in
                 if let error = error {
-                    result(FlutterError(
-                        code: INTERNAL_ERROR,
-                        message: error.localizedDescription,
-                        details: nil
-                    ))
+                    if let cwError = error as? CWError, case .invocationFailed(let reason) = cwError {
+                        result(FlutterError(
+                            code: "\(reason.statusCode)",
+                            message: error.localizedDescription,
+                            details: nil
+                        ))
+                    } else {
+                        result(FlutterError(
+                            code: "0",
+                            message: error.localizedDescription,
+                            details: nil
+                        ))
+                    }
                     return
                 }
                 result(serializedComponents)
@@ -138,7 +179,7 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
                 let componentId = arguments["id"] as? String
             else {
                 result(FlutterError(
-                    code: BAD_REQUEST,
+                    code: "0",
                     message: "'id' parameter must not be blank.",
                     details: nil
                 ))
@@ -147,11 +188,19 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
 
             self.obtainComponentById(componentId) { serializedComponent, error in
                 if let error = error {
-                    result(FlutterError(
-                        code: INTERNAL_ERROR,
-                        message: error.localizedDescription,
-                        details: nil
-                    ))
+                    if let cwError = error as? CWError, case .invocationFailed(let reason) = cwError {
+                        result(FlutterError(
+                            code: "\(reason.statusCode)",
+                            message: error.localizedDescription,
+                            details: nil
+                        ))
+                    } else {
+                        result(FlutterError(
+                            code: "0",
+                            message: error.localizedDescription,
+                            details: nil
+                        ))
+                    }
                     return
                 }
                 result(serializedComponent)
@@ -171,7 +220,7 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
             self.obtainAllAppListItems(parentId: parentId, offset: offset, max: max) { serializedAppListItems, error in
                 if let error = error {
                     result(FlutterError(
-                        code: INTERNAL_ERROR,
+                        code: "0",
                         message: error.localizedDescription,
                         details: nil
                     ))
@@ -202,15 +251,6 @@ class ArFactory: NSObject, FlutterPlatformViewFactory {
         return view
     }
 }
-
-// MARK: - FlutterError codes (specific for our plugin)
-
-let BAD_REQUEST = "400"
-let UNAUTHORIZED = "401"
-let FORBIDDEN = "403"
-let NOT_FOUND = "404"
-let INTERNAL_ERROR = "500"
-let NOT_IMPLEMENTED = "501"
 
 // MARK: - ConfigWiseSDK
 
@@ -262,29 +302,17 @@ extension SwiftCwflutterPlugin {
     }
     
     private func signIn(block: @escaping (Error?) -> Void) {
-        AuthService.sharedInstance.currentCompany { company, error in
+        // .b2c mode
+        authRepository.login(CWLoginQuery()) { entity, error in
             if let error = error {
                 block(error)
                 return
             }
-            if company != nil {
-                block(nil)
+            guard entity != nil else {
+                block("Unauthorized.")
                 return
             }
-
-            // Let's try to automatically sign-in in B2C mode
-            AuthService.sharedInstance.signIn() { user, error in
-                if let error = error {
-                    block(error)
-                    return
-                }
-                guard user != nil else {
-                    block("Unauthorized - user not found.")
-                    return
-                }
-                
-                block(nil)
-            }
+            block(nil)
         }
     }
     
@@ -293,12 +321,13 @@ extension SwiftCwflutterPlugin {
         max: Int?,
         block: @escaping ([Dictionary<String, Any?>], Error?) -> Void
     ) {
-        ComponentService.sharedInstance.obtainAllComponentsByCurrentCatalog(offset: offset, max: max) { entities, error in
+        let query = CWCatalogItemQuery(max: max, offset: offset)
+        catalogItemRepository.getCatalogItems(query) { entities, error in
             if let error = error {
                 block([], error)
                 return
             }
-            
+
             let serializedEntities = entities.map { serializeComponentEntity($0) }
             block(serializedEntities, nil)
         }
@@ -308,7 +337,12 @@ extension SwiftCwflutterPlugin {
         _ componentId: String,
         block: @escaping (Dictionary<String, Any?>?, Error?) -> Void
     ) {
-        ComponentService.sharedInstance.obtainComponentById(id: componentId) { entity, error in
+        guard let id = Int(componentId) else {
+            block(nil, nil)
+            return
+        }
+        let query = CWCatalogItemQuery(id: id)
+        catalogItemRepository.getCatalogItem(query) { entity, error in
             if let error = error {
                 block(nil, error)
                 return
@@ -317,7 +351,7 @@ extension SwiftCwflutterPlugin {
                 block(nil, nil)
                 return
             }
-            
+
             let serializedEntity = serializeComponentEntity(entity)
             block(serializedEntity, nil)
         }
@@ -329,22 +363,13 @@ extension SwiftCwflutterPlugin {
         max: Int?,
         block: @escaping ([Dictionary<String, Any?>], Error?) -> Void
     ) {
-        var parent: AppListItemEntity?
-        if let parentId = parentId {
-            parent = AppListItemEntity()
-            parent?.objectId = parentId
-        }
-        
-        AppListItemService.sharedInstance.obtainAppListItemsByCurrentCatalog(parent: parent, offset: offset, max: max) { [weak self] entities, error in
-            guard let self = self else {
-                block([], nil)
-                return
-            }
+        let query = CWCatalogItemQuery(max: max, offset: offset)
+        catalogItemRepository.getCatalogItems(query) { entities, error in
             if let error = error {
                 block([], error)
                 return
             }
-            
+
             let serializedEntities = entities
                 .filter { self.isAppListItemVisible($0) }
                 .map { serializeAppListItemEntity($0) }
@@ -352,36 +377,7 @@ extension SwiftCwflutterPlugin {
         }
     }
     
-    private func isAppListItemVisible(_ entity: AppListItemEntity) -> Bool {
-        if !entity.enabled { return false }
-        
-        if entity.isMainProduct {
-            guard let component = entity.component else {
-                return false
-            }
-        }
-
+    private func isAppListItemVisible(_ entity: CWCatalogItemEntity) -> Bool {
         return true
-    }
-}
-
-// MARK: - Observers
-
-extension SwiftCwflutterPlugin {
-    
-    private func initObservers() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(self.onSignOut),
-            name: ConfigWiseSDK.signOutNotification,
-            object: nil
-        )
-    }
-
-    @objc func onSignOut(notification: NSNotification) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            self.channel.invokeMethod("onSignOut", arguments: "Unauthorized.")
-        }
     }
 }
