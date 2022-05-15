@@ -114,10 +114,15 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
                 return
             }
 
+            guard !fileKey.isEmpty else {
+                result(nil)
+                return
+            }
+
             guard let url = URL(string: fileKey) else {
                 result(FlutterError(
                     code: "0",
-                    message: "'file_key' value must be downloading URL in iOS.",
+                    message: "'file_key' value must be downloading URL.",
                     details: nil
                 ))
                 return

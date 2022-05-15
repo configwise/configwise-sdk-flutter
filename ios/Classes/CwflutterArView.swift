@@ -19,6 +19,8 @@ class CwflutterArView: NSObject, FlutterPlatformView {
     private let arAdapter: CWArAdapter
 
     private var selectedArObject: CWArObjectEntity?
+
+    private var onArFirstPlaneDetected = false
     
     init(withFrame frame: CGRect, viewIdentifier viewId: Int64, messenger: FlutterBinaryMessenger) {
         self.channel = FlutterMethodChannel(name: "cwflutter_ar_\(viewId)", binaryMessenger: messenger)
@@ -51,11 +53,13 @@ class CwflutterArView: NSObject, FlutterPlatformView {
         case "init":
             self.arAdapter.runArSession()
             result(nil)
+            self.onArSessionStarted(restarted: true)
             break
             
         case "dispose":
             self.arAdapter.pauseArSession()
             result(nil)
+            self.onArSessionPaused()
             break
             
         case "addModel":
@@ -139,6 +143,35 @@ class CwflutterArView: NSObject, FlutterPlatformView {
         default:
             result(FlutterMethodNotImplemented)
             break
+        }
+    }
+}
+
+extension CwflutterArView {
+
+    private func onArSessionStarted(restarted: Bool) {
+        // NOTE [smuravev] Do NOT place these two blocks under one DispatchQueue.main
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+
+            self.channel.invokeMethod("onArSessionStarted", arguments: restarted)
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            guard !self.onArFirstPlaneDetected else { return }
+
+            self.onArFirstPlaneDetected = true
+            let serializedSimdWorldPosition = serializeArray(simd_float3.zero)
+            self.channel.invokeMethod("onArFirstPlaneDetected", arguments: serializedSimdWorldPosition)
+        }
+    }
+
+    private func onArSessionPaused() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.channel.invokeMethod("onArSessionPaused", arguments: nil)
         }
     }
 }
@@ -237,19 +270,11 @@ extension CwflutterArView: ARSessionDelegate {
     }
 
     func sessionWasInterrupted(_ session: ARSession) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            self.channel.invokeMethod("onArSessionPaused", arguments: nil)
-        }
+        self.onArSessionPaused()
     }
 
     func sessionInterruptionEnded(_ session: ARSession) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-
-            let restarted = false
-            self.channel.invokeMethod("onArSessionStarted", arguments: restarted)
-        }
+        self.onArSessionStarted(restarted: false)
     }
 
     func sessionShouldAttemptRelocalization(_ session: ARSession) -> Bool {
@@ -262,6 +287,7 @@ extension CwflutterArView: ARSessionDelegate {
 extension CwflutterArView: ARCoachingOverlayViewDelegate {
 
     func coachingOverlayViewDidRequestSessionReset(_ coachingOverlayView: ARCoachingOverlayView) {
+        self.onArSessionStarted(restarted: true)
     }
 
     func coachingOverlayViewWillActivate(_ coachingOverlayView: ARCoachingOverlayView) {
@@ -270,21 +296,6 @@ extension CwflutterArView: ARCoachingOverlayViewDelegate {
     func coachingOverlayViewDidDeactivate(_ coachingOverlayView: ARCoachingOverlayView) {
     }
 }
-
-// MARK: - AR
-
-//extension CwflutterArView: ArManagementDelegate {
-//
-//
-//
-//    func onArFirstPlaneDetected(simdWorldPosition: simd_float3) {
-//        let serializedSimdWorldPosition = serializeArray(simdWorldPosition)
-//        DispatchQueue.main.async { [weak self] in
-//            guard let self = self else { return }
-//            self.channel.invokeMethod("onArFirstPlaneDetected", arguments: serializedSimdWorldPosition)
-//        }
-//    }
-//}
 
 // MARK: - ArObjects
 
