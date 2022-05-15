@@ -1,19 +1,50 @@
 import Flutter
 import ARKit
-import CWSDKData
 import Combine
+import CWSDKData
+import CWSDKRender
+
+class DI {
+    private var _authRepository: CWAuthRepository?
+    var authRepository: CWAuthRepository {
+        if _authRepository == nil {
+            _authRepository = CWAuthRepositoryImpl()
+        }
+        return _authRepository!
+    }
+
+    private var _downloadingRepository: CWDownloadingRepository?
+    var downloadingRepository: CWDownloadingRepository {
+        if _downloadingRepository == nil {
+            _downloadingRepository = CWDownloadingRepositoryImpl()
+        }
+        return _downloadingRepository!
+    }
+
+    private var _catalogItemRepository: CWCatalogItemRepository?
+    var catalogItemRepository: CWCatalogItemRepository {
+        if _catalogItemRepository == nil {
+            _catalogItemRepository = CWCatalogItemRepositoryImpl()
+        }
+        return _catalogItemRepository!
+    }
+
+    private var _arObjectRepository: CWArObjectRepository?
+    var arObjectRepository: CWArObjectRepository {
+        if _arObjectRepository == nil {
+            _arObjectRepository = CWArObjectRepositoryImpl(downloadingRepository: di.downloadingRepository)
+        }
+        return _arObjectRepository!
+    }
+}
+
+let di = DI()
 
 public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
     
-    private var channel: FlutterMethodChannel
+    private let channel: FlutterMethodChannel
 
     private var subscriptions = Set<AnyCancellable>()
-
-    private var authRepository: CWAuthRepository!
-
-    private var downloadingRepository: CWDownloadingRepository!
-
-    private var catalogItemRepository: CWCatalogItemRepository!
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "cwflutter", binaryMessenger: registrar.messenger())
@@ -73,10 +104,6 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
                 .testMode(false)
             ])
 
-            self.authRepository = CWAuthRepositoryImpl()
-            self.downloadingRepository = CWDownloadingRepositoryImpl()
-            self.catalogItemRepository = CWCatalogItemRepositoryImpl()
-
             result(true)
         }
 
@@ -132,8 +159,8 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
                 return
             }
 
-            DispatchQueue.global(qos: .utility).async { [weak self] in
-                self?.downloadingRepository.externalDownload(url) { fileUrl, error in
+            DispatchQueue.global(qos: .utility).async {
+                di.downloadingRepository.externalDownload(url) { fileUrl, error in
                     DispatchQueue.main.async {
                         if let error = error {
                             if let cwError = error as? CWError, case .invocationFailed(let reason) = cwError {
@@ -326,7 +353,7 @@ extension SwiftCwflutterPlugin {
     
     private func signIn(block: @escaping (Error?) -> Void) {
         // .b2c mode
-        authRepository.login(CWLoginQuery()) { entity, error in
+        di.authRepository.login(CWLoginQuery()) { entity, error in
             if let error = error {
                 block(error)
                 return
@@ -345,7 +372,7 @@ extension SwiftCwflutterPlugin {
         block: @escaping ([Dictionary<String, Any?>], Error?) -> Void
     ) {
         let query = CWCatalogItemQuery(max: max, offset: offset)
-        catalogItemRepository.getCatalogItems(query) { entities, error in
+        di.catalogItemRepository.getCatalogItems(query) { entities, error in
             if let error = error {
                 block([], error)
                 return
@@ -365,7 +392,7 @@ extension SwiftCwflutterPlugin {
             return
         }
         let query = CWCatalogItemQuery(id: id)
-        catalogItemRepository.getCatalogItem(query) { entity, error in
+        di.catalogItemRepository.getCatalogItem(query) { entity, error in
             if let error = error {
                 block(nil, error)
                 return
@@ -387,7 +414,7 @@ extension SwiftCwflutterPlugin {
         block: @escaping ([Dictionary<String, Any?>], Error?) -> Void
     ) {
         let query = CWCatalogItemQuery(max: max, offset: offset)
-        catalogItemRepository.getCatalogItems(query) { entities, error in
+        di.catalogItemRepository.getCatalogItems(query) { entities, error in
             if let error = error {
                 block([], error)
                 return

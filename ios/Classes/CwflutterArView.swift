@@ -8,11 +8,12 @@
 import Foundation
 import ARKit
 import RealityKit
+import CWSDKData
 import CWSDKRender
 
 class CwflutterArView: NSObject, FlutterPlatformView {
     
-    let channel: FlutterMethodChannel
+    private let channel: FlutterMethodChannel
 
     private let arDelegateQueue = DispatchQueue(label: "QueueArDelegate_\(UUID().uuidString)")
     
@@ -22,7 +23,11 @@ class CwflutterArView: NSObject, FlutterPlatformView {
 
     private var onArFirstPlaneDetected = false
     
-    init(withFrame frame: CGRect, viewIdentifier viewId: Int64, messenger: FlutterBinaryMessenger) {
+    init(
+        withFrame frame: CGRect,
+        viewIdentifier viewId: Int64,
+        messenger: FlutterBinaryMessenger
+    ) {
         self.channel = FlutterMethodChannel(name: "cwflutter_ar_\(viewId)", binaryMessenger: messenger)
 
         self.arAdapter = CWArAdapter(frame: .zero)
@@ -71,23 +76,34 @@ class CwflutterArView: NSObject, FlutterPlatformView {
                 ))
                 return
             }
+            guard let id = Int(componentId) else {
+                result(FlutterError(
+                    code: "0",
+                    message: "'componentId' parameter must be numeric.",
+                    details: nil
+                ))
+                return
+            }
             
             var simdWorldPosition: simd_float3?
             if let worldPosition = arguments["worldPosition"] as? [Float] {
                 simdWorldPosition = deserializeArray(worldPosition)
             }
-            
-            self.addModel(componentId: componentId, simdWorldPosition: simdWorldPosition) { error in
-                if let error = error {
-                    result(FlutterError(
-                        code: "0",
-                        message: error.localizedDescription,
-                        details: nil
-                    ))
-                    return
-                }
 
-                result(nil)
+            DispatchQueue.global(qos: .utility).async { [weak self] in
+                self?.addModel(componentId: id) { error in
+                    DispatchQueue.main.async {
+                        if let error = error {
+                            result(FlutterError(
+                                code: "0",
+                                message: error.localizedDescription,
+                                details: nil
+                            ))
+                            return
+                        }
+                        result(nil)
+                    }
+                }
             }
             break
             
@@ -302,56 +318,51 @@ extension CwflutterArView: ARCoachingOverlayViewDelegate {
 extension CwflutterArView {
     
     private func addModel(
-        componentId: String,
-        simdWorldPosition: simd_float3?,
+        componentId: Int,
         block: @escaping (Error?) -> Void
     ) {
-//        ComponentService.sharedInstance.obtainComponentById(id: componentId) { component, error in
-//            if let error = error {
-//                block(error)
-//                return
-//            }
-//
-//            guard let component = component else {
-//                block("Unable to find component with such id.")
-//                return
-//            }
-//
-//            ModelLoaderService.sharedInstance.loadModelBy(component: component, block: { model, error in
-//                DispatchQueue.main.async { [weak self] in
-//                    guard let self = self else { return }
-//                    self.channel.invokeMethod(
-//                        "onModelLoadingProgress",
-//                        arguments: [
-//                            "componentId": componentId,
-//                            "progress": 100
-//                        ]
-//                    )
-//                }
-//
-//                if let error = error {
-//                    block(error)
-//                    return
-//                }
-//                guard let model = model else {
-//                    block("Loaded model is nil")
-//                    return
-//                }
-//
-//                self.arAdapter.addModel(modelNode: model, simdWorldPosition: simdWorldPosition, selectModel: true)
-//                block(nil)
-//            }, progressBlock: { status, completed in
-//                DispatchQueue.main.async { [weak self] in
-//                    guard let self = self else { return }
-//                    self.channel.invokeMethod(
-//                        "onModelLoadingProgress",
-//                        arguments: [
-//                            "componentId": componentId,
-//                            "progress": Int(completed * 100)
-//                        ]
-//                    )
-//                }
-//            })
-//        }
+        let query = CWCatalogItemQuery(id: componentId)
+        di.catalogItemRepository.getCatalogItem(query) { [weak self] entity, error in
+            if let error = error {
+                block(error)
+                return
+            }
+            guard let entity = entity else {
+                block("Unable to find catalog item with such id.")
+                return
+            }
+            self?.startPlacement(catalogItem: entity)
+        }
+    }
+
+    private func startPlacement(catalogItem: CWCatalogItemEntity) {
+        DispatchQueue.main.async { [weak self] in
+            let arObject = di.arObjectRepository.createArObject(catalogItem: catalogItem)
+            self?.startPlacement(arObject: arObject)
+        }
+    }
+
+    private func startPlacement(arObject: CWArObjectEntity) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+
+            self.arAdapter.hudShown = true
+            self.arAdapter.hudObject = arObject
+
+            if case .notRequested = arObject.loadableContent {
+                arObject.load()
+            }
+        }
+    }
+
+    private func finishPlacement() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+
+            if let arObject = self.arAdapter.placeArObjectFromHud() {
+                self.arAdapter.selectArObject(arObject)
+            }
+            self.arAdapter.hudShown = false
+        }
     }
 }
