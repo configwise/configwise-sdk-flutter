@@ -15,7 +15,7 @@ ConfigWise SDK Flutter plugin
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.dependency 'ConfigWiseSDK', '~> 2.1.0'
+  s.dependency 'ConfigWiseSDK', '~> 2.1.1'
   s.platform = :ios, '14.5'
 
   # Flutter.framework does not contain a i386 slice. Only x86_64 simulators are supported.

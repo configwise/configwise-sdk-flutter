@@ -1,12 +1,12 @@
 PODS:
-  - ConfigWiseSDK (2.1.0):
-    - ConfigWiseSDK/CWSDKData (= 2.1.0)
-    - ConfigWiseSDK/CWSDKRender (= 2.1.0)
-  - ConfigWiseSDK/CWSDKData (2.1.0)
-  - ConfigWiseSDK/CWSDKRender (2.1.0):
+  - ConfigWiseSDK (2.1.1):
+    - ConfigWiseSDK/CWSDKData (= 2.1.1)
+    - ConfigWiseSDK/CWSDKRender (= 2.1.1)
+  - ConfigWiseSDK/CWSDKData (2.1.1)
+  - ConfigWiseSDK/CWSDKRender (2.1.1):
     - ConfigWiseSDK/CWSDKData
   - cwflutter (1.0.17):
-    - ConfigWiseSDK (~> 2.1.0)
+    - ConfigWiseSDK (~> 2.1.1)
     - Flutter
   - Flutter (1.0.0)
   - fluttertoast (0.0.2):
@@ -33,8 +33,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/fluttertoast/ios"
 
 SPEC CHECKSUMS:
-  ConfigWiseSDK: 2eafc818e800a4414facb5b6b9f72affdf27434b
-  cwflutter: 29bc9ad4df03cedf4cf1bc8b77fcd0c99db446f4
+  ConfigWiseSDK: ce4f9efdd9b1f2b33bfb469101c40abba9e69611
+  cwflutter: 2b8d47c0158838d281ac9ca0f1f6f3d24cd5fb15
   Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
   fluttertoast: 16fbe6039d06a763f3533670197d01fc73459037
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
