@@ -17,7 +17,7 @@ class CwflutterArView: NSObject, FlutterPlatformView {
 
     private let arDelegateQueue = DispatchQueue(label: "QueueArDelegate_\(UUID().uuidString)")
     
-    private let arAdapter: CWArAdapter
+    private var arAdapter: CWArAdapter?
 
     private var selectedArObject: CWArObjectEntity?
 
@@ -37,34 +37,48 @@ class CwflutterArView: NSObject, FlutterPlatformView {
         self.channel.setMethodCallHandler(self.onMethodCalled)
         
         // Let's init ArAdapter
-        arAdapter.delegateQueue = self.arDelegateQueue
-        arAdapter.arSessionDelegate = self
-        arAdapter.arCoachingOverlayViewDelegate = self
-        arAdapter.arObjectSelectionDelegate = self
-        arAdapter.arObjectManagementDelegate = self
+        if let arAdapter = self.arAdapter {
+            arAdapter.delegateQueue = self.arDelegateQueue
+            arAdapter.arSessionDelegate = self
+            arAdapter.arCoachingOverlayViewDelegate = self
+            arAdapter.arObjectSelectionDelegate = self
+            arAdapter.arObjectManagementDelegate = self
 
-        arAdapter.coachingEnabled = true
-        arAdapter.hudColor = .blue
-        arAdapter.hudEnabled = true
-        arAdapter.arObjectSelectionMode = .single
+            arAdapter.coachingEnabled = true
+            arAdapter.hudColor = .blue
+            arAdapter.hudEnabled = true
+            arAdapter.arObjectSelectionMode = .single
+        }
     }
     
-    func view() -> UIView { return self.arAdapter.arView }
+    func view() -> UIView {
+        return self.arAdapter?.arView ?? UIView(frame: .zero)
+    }
     
     func onMethodCalled(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let arguments = call.arguments as? Dictionary<String, Any>
+
+        guard let arAdapter = self.arAdapter else {
+            result(FlutterError(
+                code: "0",
+                message: "ArAdapter not initialized.",
+                details: nil
+            ))
+            return
+        }
         
         switch call.method {
         case "init":
-            self.arAdapter.runArSession()
+            arAdapter.runArSession()
             result(nil)
             self.onArSessionStarted(restarted: true)
             break
             
         case "dispose":
-            self.arAdapter.pauseArSession()
+            arAdapter.pauseArSession()
             result(nil)
             self.onArSessionPaused()
+            self.arAdapter = nil
             break
             
         case "addModel":
@@ -90,31 +104,27 @@ class CwflutterArView: NSObject, FlutterPlatformView {
                 simdWorldPosition = deserializeArray(worldPosition)
             }
 
-            DispatchQueue.global(qos: .utility).async { [weak self] in
-                self?.addModel(componentId: id) { error in
-                    DispatchQueue.main.async {
-                        if let error = error {
-                            result(FlutterError(
-                                code: "0",
-                                message: error.localizedDescription,
-                                details: nil
-                            ))
-                            return
-                        }
-                        result(nil)
-                    }
+            self.addModel(componentId: id) { error in
+                if let error = error {
+                    result(FlutterError(
+                        code: "0",
+                        message: error.localizedDescription,
+                        details: nil
+                    ))
+                    return
                 }
+                result(nil)
             }
             break
             
         case "resetSelection":
-            self.arAdapter.deselectAllArObjects()
+            arAdapter.deselectAllArObjects()
             result(nil)
             break
             
         case "removeSelectedModel":
             if let selectedArObject = self.selectedArObject {
-                self.arAdapter.removeArObject(selectedArObject)
+                arAdapter.removeArObject(selectedArObject)
             }
             result(nil)
             break
@@ -137,22 +147,22 @@ class CwflutterArView: NSObject, FlutterPlatformView {
                 return
             }
 
-            if let arObject = self.arAdapter.arObjects.first(where: { $0.id == id }) {
-                self.arAdapter.removeArObject(arObject)
+            if let arObject = arAdapter.arObjects.first(where: { $0.id == id }) {
+                arAdapter.removeArObject(arObject)
             }
             result(nil)
             break
             
         case "setMeasurementShown":
-            var showSizes = false
-            if let arguments = arguments, let value = arguments["value"] as? Bool {
-                showSizes = value
-            }
-
             // TODO [smuravev] ConfigWiseSDK_2X doesn't support showSizes feature.
             //                 Maybe, we implement it later.
-            // self.arAdapter.showSizes = showSizes
-//            result(self.arAdapter.showSizes)
+//            var showSizes = false
+//            if let arguments = arguments, let value = arguments["value"] as? Bool {
+//                showSizes = value
+//            }
+//            arAdapter.showSizes = showSizes
+//            result(arAdapter.showSizes)
+
             result(false)
             break
         
@@ -170,7 +180,6 @@ extension CwflutterArView {
 
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-
             self.channel.invokeMethod("onArSessionStarted", arguments: restarted)
         }
 
@@ -331,7 +340,9 @@ extension CwflutterArView {
                 block("Unable to find catalog item with such id.")
                 return
             }
+
             self?.startPlacement(catalogItem: entity)
+            block(nil)
         }
     }
 
@@ -344,10 +355,10 @@ extension CwflutterArView {
 
     private func startPlacement(arObject: CWArObjectEntity) {
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
+            guard let arAdapter = self?.arAdapter else { return }
 
-            self.arAdapter.hudShown = true
-            self.arAdapter.hudObject = arObject
+            arAdapter.hudShown = true
+            arAdapter.hudObject = arObject
 
             if case .notRequested = arObject.loadableContent {
                 arObject.load()
@@ -357,12 +368,12 @@ extension CwflutterArView {
 
     private func finishPlacement() {
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
+            guard let arAdapter = self?.arAdapter else { return }
 
-            if let arObject = self.arAdapter.placeArObjectFromHud() {
-                self.arAdapter.selectArObject(arObject)
+            if let arObject = arAdapter.placeArObjectFromHud() {
+                arAdapter.selectArObject(arObject)
             }
-            self.arAdapter.hudShown = false
+            arAdapter.hudShown = false
         }
     }
 }

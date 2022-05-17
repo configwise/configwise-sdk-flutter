@@ -108,28 +108,24 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
         }
 
         else if call.method == "signIn" {
-            DispatchQueue.global(qos: .utility).async { [weak self] in
-                self?.signIn() { error in
-                    DispatchQueue.main.async {
-                        if let error = error {
-                            if let cwError = error as? CWError, case .invocationFailed(let reason) = cwError {
-                                result(FlutterError(
-                                    code: "\(reason.statusCode)",
-                                    message: error.localizedDescription,
-                                    details: nil
-                                ))
-                            } else {
-                                result(FlutterError(
-                                    code: "0",
-                                    message: error.localizedDescription,
-                                    details: nil
-                                ))
-                            }
-                            return
-                        }
-                        result(true)
+            self.signIn() { error in
+                if let error = error {
+                    if let cwError = error as? CWError, case .invocationFailed(let reason) = cwError {
+                        result(FlutterError(
+                            code: "\(reason.statusCode)",
+                            message: error.localizedDescription,
+                            details: nil
+                        ))
+                    } else {
+                        result(FlutterError(
+                            code: "0",
+                            message: error.localizedDescription,
+                            details: nil
+                        ))
                     }
+                    return
                 }
+                result(true)
             }
         }
         
@@ -159,29 +155,25 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
                 return
             }
 
-            DispatchQueue.global(qos: .utility).async {
-                di.downloadingRepository.externalDownload(url) { fileUrl, error in
-                    DispatchQueue.main.async {
-                        if let error = error {
-                            if let cwError = error as? CWError, case .invocationFailed(let reason) = cwError {
-                                result(FlutterError(
-                                    code: "\(reason.statusCode)",
-                                    message: error.localizedDescription,
-                                    details: nil
-                                ))
-                            } else {
-                                result(FlutterError(
-                                    code: "0",
-                                    message: error.localizedDescription,
-                                    details: nil
-                                ))
-                            }
-                            return
-                        }
-
-                        result(fileUrl?.path ?? "")
+            di.downloadingRepository.externalDownload(url) { fileUrl, error in
+                if let error = error {
+                    if let cwError = error as? CWError, case .invocationFailed(let reason) = cwError {
+                        result(FlutterError(
+                            code: "\(reason.statusCode)",
+                            message: error.localizedDescription,
+                            details: nil
+                        ))
+                    } else {
+                        result(FlutterError(
+                            code: "0",
+                            message: error.localizedDescription,
+                            details: nil
+                        ))
                     }
+                    return
                 }
+
+                result(fileUrl?.path ?? "")
             }
         }
             
@@ -193,28 +185,24 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
                 max = arguments["max"] as? Int
             }
 
-            DispatchQueue.global(qos: .utility).async { [weak self] in
-                self?.obtainAllComponents(offset: offset, max: max) { serializedComponents, error in
-                    DispatchQueue.main.async {
-                        if let error = error {
-                            if let cwError = error as? CWError, case .invocationFailed(let reason) = cwError {
-                                result(FlutterError(
-                                    code: "\(reason.statusCode)",
-                                    message: error.localizedDescription,
-                                    details: nil
-                                ))
-                            } else {
-                                result(FlutterError(
-                                    code: "0",
-                                    message: error.localizedDescription,
-                                    details: nil
-                                ))
-                            }
-                            return
-                        }
-                        result(serializedComponents)
+            self.obtainAllComponents(offset: offset, max: max) { serializedComponents, error in
+                if let error = error {
+                    if let cwError = error as? CWError, case .invocationFailed(let reason) = cwError {
+                        result(FlutterError(
+                            code: "\(reason.statusCode)",
+                            message: error.localizedDescription,
+                            details: nil
+                        ))
+                    } else {
+                        result(FlutterError(
+                            code: "0",
+                            message: error.localizedDescription,
+                            details: nil
+                        ))
                     }
+                    return
                 }
+                result(serializedComponents)
             }
         }
             
@@ -230,28 +218,24 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
                 return
             }
 
-            DispatchQueue.global(qos: .utility).async { [weak self] in
-                self?.obtainComponentById(componentId) { serializedComponent, error in
-                    DispatchQueue.main.async {
-                        if let error = error {
-                            if let cwError = error as? CWError, case .invocationFailed(let reason) = cwError {
-                                result(FlutterError(
-                                    code: "\(reason.statusCode)",
-                                    message: error.localizedDescription,
-                                    details: nil
-                                ))
-                            } else {
-                                result(FlutterError(
-                                    code: "0",
-                                    message: error.localizedDescription,
-                                    details: nil
-                                ))
-                            }
-                            return
-                        }
-                        result(serializedComponent)
+            self.obtainComponentById(componentId) { serializedComponent, error in
+                if let error = error {
+                    if let cwError = error as? CWError, case .invocationFailed(let reason) = cwError {
+                        result(FlutterError(
+                            code: "\(reason.statusCode)",
+                            message: error.localizedDescription,
+                            details: nil
+                        ))
+                    } else {
+                        result(FlutterError(
+                            code: "0",
+                            message: error.localizedDescription,
+                            details: nil
+                        ))
                     }
+                    return
                 }
+                result(serializedComponent)
             }
         }
         
@@ -265,18 +249,16 @@ public class SwiftCwflutterPlugin: NSObject, FlutterPlugin {
                 max = arguments["max"] as? Int
             }
 
-            DispatchQueue.global(qos: .utility).async { [weak self] in
-                self?.obtainAllAppListItems(parentId: parentId, offset: offset, max: max) { serializedAppListItems, error in
-                    if let error = error {
-                        result(FlutterError(
-                            code: "0",
-                            message: error.localizedDescription,
-                            details: nil
-                        ))
-                        return
-                    }
-                    result(serializedAppListItems)
+            self.obtainAllAppListItems(parentId: parentId, offset: offset, max: max) { serializedAppListItems, error in
+                if let error = error {
+                    result(FlutterError(
+                        code: "0",
+                        message: error.localizedDescription,
+                        details: nil
+                    ))
+                    return
                 }
+                result(serializedAppListItems)
             }
         }
 
