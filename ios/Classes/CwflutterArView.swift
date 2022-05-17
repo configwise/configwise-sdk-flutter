@@ -80,6 +80,20 @@ class CwflutterArView: NSObject, FlutterPlatformView {
             self.onArSessionPaused()
             self.arAdapter = nil
             break
+
+        case "startArPlacement":
+            guard let selectedArObject = self.selectedArObject else {
+                result(false)
+                return
+            }
+            self.startPlacement(arObject: selectedArObject)
+            result(true)
+            break
+
+        case "finishArPlacement":
+            self.finishPlacement()
+            result(nil)
+            break
             
         case "addModel":
             guard let arguments = arguments, let componentId = arguments["componentId"] as? String else {

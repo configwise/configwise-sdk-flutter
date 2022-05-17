@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:cwflutter/cwflutter.dart';
 import 'package:cwflutter/domain/component_entity.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +34,8 @@ class _ArPageState extends State<ArPage> {
   bool _isAllowToAddOtherProducts = false;
 
   bool _isMeasurementShown = false;
+
+  bool _arPlacementInProgress = false;
 
   @override
   void initState() {
@@ -102,9 +105,26 @@ class _ArPageState extends State<ArPage> {
           Spacer(),
           FloatingActionButton(
             onPressed: () {
-              arController.resetSelection();
+              if (defaultTargetPlatform == TargetPlatform.iOS) {
+                arController
+                    ?.startArPlacement()
+                    ?.then((value) => setState(() => _arPlacementInProgress = value))
+                    ?.catchError((e) {
+                      setState(() {
+                        if (defaultTargetPlatform == TargetPlatform.iOS) {
+                          _arPlacementInProgress = false;
+                        }
+                      });
+                      _onError(false, '$e');
+                    });
+              } else {
+                arController.resetSelection();
+              }
             },
-            child: Icon(Icons.check),
+            child: Icon(defaultTargetPlatform == TargetPlatform.iOS
+                ? Icons.location_searching
+                : Icons.check
+            ),
             heroTag: null,
           ),
           Spacer(),
@@ -124,15 +144,49 @@ class _ArPageState extends State<ArPage> {
         ],
       );
     } else {
-      return FloatingActionButton(
-        onPressed: !_isAllowToAddOtherProducts ? null : () {
-          _showComponentsList(context);
-        },
-        child: Icon(Icons.add),
-        heroTag: null,
-        backgroundColor: _isAllowToAddOtherProducts ? Colors.blueAccent : Colors.grey,
-        foregroundColor: _isAllowToAddOtherProducts ? Colors.white : Colors.black12,
-      );
+      if (defaultTargetPlatform == TargetPlatform.iOS && _arPlacementInProgress) {
+        return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Spacer(),
+              FloatingActionButton(
+                onPressed: () {
+                  arController
+                      ?.finishArPlacement()
+                      ?.then((value) => setState(() => _arPlacementInProgress = false))
+                      ?.catchError((e) {
+                        setState(() {
+                          if (defaultTargetPlatform == TargetPlatform.iOS) {
+                            _arPlacementInProgress = false;
+                          }
+                        });
+                        _onError(false, '$e');
+                      });
+                },
+                child: Icon(Icons.check),
+                heroTag: null,
+              ),
+              Spacer()
+            ]
+        );
+      } else {
+        return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Spacer(),
+              FloatingActionButton(
+                onPressed: !_isAllowToAddOtherProducts ? null : () {
+                  _showComponentsList(context);
+                },
+                child: Icon(Icons.add),
+                heroTag: null,
+                backgroundColor: _isAllowToAddOtherProducts ? Colors.blueAccent : Colors.grey,
+                foregroundColor: _isAllowToAddOtherProducts ? Colors.white : Colors.black12,
+              ),
+              Spacer()
+            ]
+        );
+      }
     }
   }
 
@@ -248,8 +302,20 @@ class _ArPageState extends State<ArPage> {
 
   void _onArFirstPlaneDetected(VectorMath64.Vector3 worldPosition) {
     arController
-        ?.addModel(widget.initialComponent, worldPosition: worldPosition)
-        ?.catchError((e) => _onError(false, '$e'));
+        ?.addModel(widget.initialComponent.id, worldPosition: worldPosition)
+        ?.then((value) => setState(() {
+          if (defaultTargetPlatform == TargetPlatform.iOS) {
+            _arPlacementInProgress = true;
+          }
+        }))
+        ?.catchError((e) {
+          setState(() {
+            if (defaultTargetPlatform == TargetPlatform.iOS) {
+              _arPlacementInProgress = false;
+            }
+          });
+          _onError(false, '$e');
+        });
   }
 
   void _showComponentsList(BuildContext context) {
@@ -281,8 +347,20 @@ class _ArPageState extends State<ArPage> {
                           onTap: (component) {
                             Navigator.pop(context);
                             arController
-                                ?.addModel(component)
-                                ?.catchError((e) => _onError(false, '$e'));
+                                ?.addModel(component.id)
+                                ?.then((value) => setState(() {
+                                  if (defaultTargetPlatform == TargetPlatform.iOS) {
+                                    _arPlacementInProgress = true;
+                                  }
+                                }))
+                                ?.catchError((e) {
+                                  setState(() {
+                                    if (defaultTargetPlatform == TargetPlatform.iOS) {
+                                      _arPlacementInProgress = false;
+                                    }
+                                  });
+                                  _onError(false, '$e');
+                                });
                           },
                       )).toList()
                   ),
@@ -315,12 +393,17 @@ class ComponentCell extends StatelessWidget {
           leading: FutureBuilder<String>(
               future: Cwflutter.obtainFile(component.thumbnailFileKey),
               builder: (context, snapshot) {
-                return Image.file(
-                  new File(snapshot.hasData ? snapshot.data : ''),
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
-                );
+                File imageFile = new File(snapshot.hasData ? snapshot.data : '');
+                if (imageFile.existsSync()) {
+                  return Image.file(
+                    imageFile,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  );
+                } else {
+                  return Icon(Icons.image, size: 50);
+                }
               }
           ),
           title: Text(

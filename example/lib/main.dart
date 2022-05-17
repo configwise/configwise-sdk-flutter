@@ -297,12 +297,17 @@ class AppListItemCellProduct extends StatelessWidget {
           leading: FutureBuilder<String>(
               future: Cwflutter.obtainFile(appListItem.imageFileKey),
               builder: (context, snapshot) {
-                return Image.file(
-                  new File(snapshot.hasData ? snapshot.data : ''),
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
-                );
+                File imageFile = new File(snapshot.hasData ? snapshot.data : '');
+                if (imageFile.existsSync()) {
+                  return Image.file(
+                    imageFile,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  );
+                } else {
+                  return Icon(Icons.image, size: 50);
+                }
               }
           ),
           title: Text(
