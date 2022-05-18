@@ -1,7 +1,13 @@
 # cwflutter
 
-**Note:** ConfigWise SDK flutter plugin is only supported by mobile devices with A9 or later processors 
-(iPhone 6s/7/SE/8/X, iPad 2017/Pro) on iOS 12 and newer.
+## Compatibility
+
++ iOS: ConfigWise SDK flutter plugin is only supported by mobile devices:
+  + with A9 or later processors.
+  + iOS 14.5 and newer.
++ Android: Minimal Android 7.0 (API-24)
+  + Installed Google AR Core: https://play.google.com/store/apps/details?id=com.google.ar.core
+  + See full list of supported devices, here: https://developers.google.com/ar/devices
 
 ## Getting Started
 
@@ -25,7 +31,9 @@ Import `package:cwflutter/cwflutter.dart`, and initiate `Cwflutter Plugin` with 
 ```dart
     try {
       await Cwflutter.initialize(
-        "YOUR_COMPANY_AUTH_TOKEN",
+        defaultTargetPlatform == TargetPlatform.iOS
+          ? "YOUR_IOS_COMPANY_AUTH_TOKEN"
+          : "YOUR_ANDROID_COMPANY_AUTH_TOKEN",
         1 * 60 * 60,       // 1 hr
         400 * 1024 * 1024, // 400 Mb - we recommend to set 400 Mb or more for androidLowMemoryThreshold
         true
@@ -51,7 +59,7 @@ See: [example/lib/main.dart](example/lib/main.dart)
 
 ### Depend on it
 
-Follow the [installation instructions](https://pub.dartlang.org/packages/cwflutter#-installing-tab-) from Dart Packages site.
+Follow the [installation instructions](https://pub.dev/packages/cwflutter/install) from Dart Packages site.
 
 ### Update Info.plist
 
@@ -64,11 +72,4 @@ ARKit uses the device camera, so do not forget to provide the `NSCameraUsageDesc
 ```xml
     <key>NSCameraUsageDescription</key>
     <string>Describe why your app needs AR here.</string>
-```
-
-### Let's add Metal (shader rendering) code to ios Runner in your Flutter project.
-
-Finally, add [NodeRender.metal](example/ios/Runner/NodeRender.metal) file (as `metal` source code) to ios Runner in your Flutter project.
-`NodeRender.metal` is [Apple Metal API](https://developer.apple.com/metal/) based code to show 'glow' visualisation of highlighted 3D objects in the AR scene.
-Unfortunately, there are some known issues (restrictions) to pack `.metal` code inside of ConfigWiseSDK framework - that's why `.metal` code must 
-be part of your project to pass compilation steps.  
+``` 

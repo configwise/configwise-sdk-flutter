@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:cwflutter/domain/app_list_item_entity.dart';
 import 'package:cwflutter/widget/ar_configuration.dart';
 import 'package:flutter/services.dart';
@@ -27,24 +28,28 @@ class Cwflutter {
   }
 
   static Future<bool> initialize(
-      String companyAuthToken,
+      String authToken,
       int dbAccessPeriod,
       int androidLowMemoryThreshold,
       bool lightEstimateEnabled
   ) {
-    return _channel.invokeMethod<bool>('initialize', {
-      'companyAuthToken': companyAuthToken,
-      'dbAccessPeriod': dbAccessPeriod,
-      'androidLowMemoryThreshold': androidLowMemoryThreshold,
-      'lightEstimateEnabled': lightEstimateEnabled
-    });
+    if (defaultTargetPlatform == TargetPlatform.android) { // ConfigWiseSDK_1X
+      return _channel.invokeMethod<bool>('initialize', {
+        'companyAuthToken': authToken,
+        'dbAccessPeriod': dbAccessPeriod,
+        'androidLowMemoryThreshold': androidLowMemoryThreshold,
+        'lightEstimateEnabled': lightEstimateEnabled
+      });
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) { // ConfigWiseSDK_2X
+      return _channel.invokeMethod<bool>('initialize', {
+        'channelToken': authToken
+      });
+    } else {
+      return Future.error("Unable to initialize ConfigWiseSDK due unsupported platform. iOS and Android platforms are supported only.");
+    }
   }
 
   static Future<bool> signIn() async {
-    if (authState == AuthState.authorised) {
-      return Future.value(true);
-    }
-
     authState = AuthState.inProgress;
     try {
       bool result = await _channel.invokeMethod<bool>('signIn');

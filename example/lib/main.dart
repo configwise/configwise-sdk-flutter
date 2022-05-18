@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -70,7 +71,9 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _initConfigWiseSdk() async {
     Cwflutter.initialize(
-        "YOUR_COMPANY_AUTH_TOKEN",
+        defaultTargetPlatform == TargetPlatform.iOS
+          ? "YOUR_IOS_COMPANY_AUTH_TOKEN"
+          : "YOUR_ANDROID_COMPANY_AUTH_TOKEN",
         1 * 60 * 60,       // 1 hr
         400 * 1024 * 1024, // 400 Mb - we recommend to set 400 Mb or more for androidLowMemoryThreshold
         true
@@ -78,11 +81,6 @@ class _MyAppState extends State<MyApp> {
         .then((isInitialized) {
           if (!isInitialized) {
             return Future.value(false);
-          }
-
-          // Let's skip authorization step if we already authorized.
-          if (Cwflutter.authState == AuthState.authorised) {
-            return Future.value(true);
           }
 
           return Cwflutter.signIn();
@@ -302,12 +300,17 @@ class AppListItemCellProduct extends StatelessWidget {
           leading: FutureBuilder<String>(
               future: Cwflutter.obtainFile(appListItem.imageFileKey),
               builder: (context, snapshot) {
-                return Image.file(
-                  new File(snapshot.hasData ? snapshot.data : ''),
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
-                );
+                File imageFile = new File(snapshot.hasData ? snapshot.data : '');
+                if (imageFile.existsSync()) {
+                  return Image.file(
+                    imageFile,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  );
+                } else {
+                  return Icon(Icons.image, size: 50);
+                }
               }
           ),
           title: Text(

@@ -26,7 +26,7 @@ dependencies:
 
   # https://pub.dev/packages/fluttertoast
   # https://github.com/PonnamKarthik/FlutterToast
-  fluttertoast: ^7.1.6
+  fluttertoast: ^8.0.9
 
 dev_dependencies:
   flutter_test:

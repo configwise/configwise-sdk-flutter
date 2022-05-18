@@ -1,6 +1,6 @@
 name: cwflutter
 description: A plugin that implements the ConfigWise SDK to have AR capability with a flutter app.
-version: 1.0.17
+version: 2.0.0
 homepage: https://www.configwise.io
 repository: https://github.com/configwise/configwise-sdk-flutter
 
@@ -12,7 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   vector_math: ^2.0.8
-  json_annotation: ^3.0.1
+  json_annotation: ^4.4.0
 
 dev_dependencies:
   flutter_test:

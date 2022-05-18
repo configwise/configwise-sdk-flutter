@@ -144,6 +144,14 @@ class CwflutterArView implements PlatformView, MethodChannel.MethodCallHandler, 
             result.success(null);
         }
 
+        else if (call.method.equals("startArPlacement")) {
+            result.notImplemented();
+        }
+
+        else if (call.method.equals("finishArPlacement")) {
+            result.notImplemented();
+        }
+
         else if (call.method.equals("addModel")) {
             String componentId = (String) args.get("componentId");
             if (componentId == null || componentId.isEmpty()) {

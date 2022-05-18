@@ -163,3 +163,17 @@ NOTICE: this parameter must be set as amount of bytes. Default value is 400 Mb (
 * Usage of latest version of Android ConfigWiseSDK (v1.4.2) has been added.
 
 * Hardening improvements.
+
+## 2.0.0
+
+* ConfigWise plugin has been migrated to be compatible with Flutter 2, Flutter 3 releases.
+
+* iOS bridge has been integrated with ConfigWiseSDK_2X branch:
+  * Xcode 13, Swift 5 compatibility.
+  * ConfigWiseSDK v2.1.1
+    * new ConfigWise_2 backend
+    * new AR flow
+    * SceneKit has been replaced on to RealitKit rendering underhood.
+    * NOTICE: Now, you need two different `COMPANY_AUTH_TOKENs` to initialize SDK (one per iOS, second one per Android).
+
+* NOTICE: Android bridge still based on ConfigWiseSDK_1X branch (Android ConfigWiseSDK v1.4.2).
