@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -70,7 +71,9 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _initConfigWiseSdk() async {
     Cwflutter.initialize(
-        "YOUR_COMPANY_AUTH_TOKEN",
+        defaultTargetPlatform == TargetPlatform.iOS
+          ? "YOUR_IOS_COMPANY_AUTH_TOKEN"
+          : "YOUR_ANDROID_COMPANY_AUTH_TOKEN",
         1 * 60 * 60,       // 1 hr
         400 * 1024 * 1024, // 400 Mb - we recommend to set 400 Mb or more for androidLowMemoryThreshold
         true

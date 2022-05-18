@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'cwflutter'
-  s.version          = '1.0.17'
+  s.version          = '2.0.0'
   s.summary          = 'ConfigWise SDK Flutter plugin'
   s.description      = <<-DESC
 ConfigWise SDK Flutter plugin
